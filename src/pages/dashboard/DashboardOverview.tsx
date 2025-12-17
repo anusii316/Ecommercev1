@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Package, Clock, Heart, DollarSign, TrendingUp, Eye } from 'lucide-react';
+import { Package, Clock, Heart, IndianRupee, TrendingUp, Eye } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
 import { useWishlistStore } from '../../stores/wishlistStore';
 import { useNavigate } from 'react-router-dom';
@@ -48,7 +48,7 @@ export const DashboardOverview = () => {
     {
       title: 'Total Spent',
       value: `₹${totalSpent.toFixed(2)}`,
-      icon: DollarSign,
+      icon: IndianRupee,
       color: 'from-green-500 to-green-600',
       textColor: 'text-green-600',
       bgColor: 'bg-green-50',
@@ -90,7 +90,7 @@ export const DashboardOverview = () => {
                   <TrendingUp className="w-5 h-5 text-green-500" />
                 </div>
 
-                <h3 className="text-gray-500 text-sm font-medium mb-1">
+                <h3 className="text-gray-600 text-sm font-semibold uppercase tracking-wide mb-1">
                   {card.title}
                 </h3>
                 <p className="text-3xl font-bold text-gray-900">
