@@ -144,7 +144,7 @@ export const Account = () => {
                       </div>
                       <div className="text-right">
                         <p className="text-2xl font-bold text-blue-600">
-                          ${order.total.toFixed(2)}
+                          ₹{order.total.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -162,7 +162,7 @@ export const Account = () => {
                             <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
                           </div>
                           <span className="font-semibold text-gray-900">
-                            ${item.price.toFixed(2)}
+                            ₹{item.price.toFixed(2)}
                           </span>
                         </div>
                       ))}

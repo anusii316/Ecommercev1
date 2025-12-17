@@ -493,20 +493,13 @@ export const useOrderStore = create<OrderState>()(
           return;
         }
 
-        let userOrders = loadUserOrders(userId);
-        if (userOrders.length === 0) {
-          userOrders = generateUserOrders(userId);
-          saveUserOrders(userId, userOrders);
-        }
-
-        const userAddresses = generateUserAddresses(userId, userName);
-        const userPaymentMethods = generateUserPaymentMethods(userId, userName);
+        const userOrders = loadUserOrders(userId);
 
         set({
           currentUserId: userId,
           orders: userOrders,
-          savedAddresses: userAddresses,
-          paymentMethods: userPaymentMethods,
+          savedAddresses: [],
+          paymentMethods: [],
         });
       },
       addOrder: (order) => {

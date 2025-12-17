@@ -193,7 +193,7 @@ export const Shop = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <span className="text-xl font-bold text-blue-600">
-                          ${product.price.toFixed(2)}
+                          ₹{product.price.toFixed(2)}
                         </span>
                       </div>
 

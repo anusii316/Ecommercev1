@@ -71,7 +71,7 @@ export const OrderHistory = () => {
 
                 <div className="text-right">
                   <p className="text-2xl font-bold text-blue-600 mb-2">
-                    ${order.total.toFixed(2)}
+                    ₹{order.total.toFixed(2)}
                   </p>
                   <p className="text-sm text-gray-500">
                     {order.items.length} {order.items.length === 1 ? 'item' : 'items'}

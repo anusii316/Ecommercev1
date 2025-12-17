@@ -198,7 +198,7 @@ export const OrderDetails = () => {
                     </p>
                   </div>
                   <p className="font-bold text-gray-900">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    ₹{(item.price * item.quantity).toFixed(2)}
                   </p>
                 </motion.div>
               ))}
@@ -220,22 +220,22 @@ export const OrderDetails = () => {
             <div className="space-y-3 mb-6">
               <div className="flex justify-between text-gray-600">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>₹{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
-                <span>Tax</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>Tax (GST)</span>
+                <span>₹{tax.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-gray-600">
                 <span>Shipping</span>
                 <span className="text-green-600 font-semibold">
-                  {shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`}
+                  {shipping === 0 ? 'FREE' : `₹${shipping.toFixed(2)}`}
                 </span>
               </div>
               <div className="border-t pt-3">
                 <div className="flex justify-between text-xl font-bold text-gray-900">
                   <span>Total</span>
-                  <span>${order.total.toFixed(2)}</span>
+                  <span>₹{order.total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -279,9 +279,19 @@ export const OrderDetails = () => {
             transition={{ delay: 0.2 }}
             className="space-y-3"
           >
-            <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
-              Track Order
-            </button>
+            {order.status === 'Delivered' ? (
+              <div className="w-full bg-green-50 border-2 border-green-500 text-green-700 py-3 rounded-lg font-semibold text-center">
+                Delivered on {order.date}
+              </div>
+            ) : order.status === 'Cancelled' ? (
+              <div className="w-full bg-red-50 border-2 border-red-500 text-red-700 py-3 rounded-lg font-semibold text-center">
+                Order Cancelled
+              </div>
+            ) : (
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
+                Track Order
+              </button>
+            )}
             <button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors">
               Download Invoice
             </button>

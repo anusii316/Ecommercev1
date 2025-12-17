@@ -210,7 +210,7 @@ export const Home = () => {
           >
             <Zap className="w-14 h-14 mb-4" />
             <h3 className="text-3xl font-bold mb-3">Fast Shipping</h3>
-            <p className="text-lg">Free shipping on orders over $50</p>
+            <p className="text-lg">Free shipping on orders over ₹500</p>
           </motion.div>
 
           <motion.div

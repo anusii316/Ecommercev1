@@ -47,7 +47,7 @@ export const DashboardOverview = () => {
     },
     {
       title: 'Total Spent',
-      value: `$${totalSpent.toFixed(2)}`,
+      value: `₹${totalSpent.toFixed(2)}`,
       icon: DollarSign,
       color: 'from-green-500 to-green-600',
       textColor: 'text-green-600',
@@ -158,7 +158,7 @@ export const DashboardOverview = () => {
 
                 <div className="text-right">
                   <p className="font-bold text-gray-900">
-                    ${order.total.toFixed(2)}
+                    ₹{order.total.toFixed(2)}
                   </p>
                   <span
                     className={`text-xs px-2 py-1 rounded-full ${

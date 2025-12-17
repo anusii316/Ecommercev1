@@ -107,11 +107,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <div className="flex items-center justify-between">
           <div>
             <span className="text-xl font-bold text-blue-600">
-              ${product.price.toFixed(2)}
+              ₹{product.price.toFixed(2)}
             </span>
             {product.originalPrice && (
               <span className="ml-2 text-sm text-gray-400 line-through">
-                ${product.originalPrice.toFixed(2)}
+                ₹{product.originalPrice.toFixed(2)}
               </span>
             )}
           </div>

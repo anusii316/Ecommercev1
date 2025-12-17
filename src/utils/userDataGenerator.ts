@@ -69,12 +69,12 @@ const productNames = [
 ];
 
 const addresses = [
-  { street: '123 Main St', city: 'New York', state: 'NY', zip: '10001' },
-  { street: '456 Oak Ave', city: 'Los Angeles', state: 'CA', zip: '90001' },
-  { street: '789 Pine Rd', city: 'Chicago', state: 'IL', zip: '60601' },
-  { street: '321 Elm St', city: 'Houston', state: 'TX', zip: '77001' },
-  { street: '654 Maple Dr', city: 'Phoenix', state: 'AZ', zip: '85001' },
-  { street: '987 Cedar Ln', city: 'Philadelphia', state: 'PA', zip: '19101' },
+  { street: '23, MG Road', city: 'Bengaluru', state: 'Karnataka', zip: '560001' },
+  { street: '45, Anna Salai', city: 'Chennai', state: 'Tamil Nadu', zip: '600002' },
+  { street: '67, Linking Road', city: 'Mumbai', state: 'Maharashtra', zip: '400050' },
+  { street: '89, Park Street', city: 'Kolkata', state: 'West Bengal', zip: '700016' },
+  { street: '12, Connaught Place', city: 'New Delhi', state: 'Delhi', zip: '110001' },
+  { street: '34, CG Road', city: 'Ahmedabad', state: 'Gujarat', zip: '380009' },
 ];
 
 const statuses: Array<'Processing' | 'Shipped' | 'Delivered' | 'Cancelled'> = [
@@ -105,7 +105,7 @@ export const generateUserOrders = (userId: string) => {
     for (let j = 0; j < itemCount; j++) {
       const productSeed = itemSeed + j * 100;
       const productIndex = Math.floor(seededRandom(productSeed) * productNames.length);
-      const price = 49.99 + seededRandom(productSeed + 1) * 1850;
+      const price = (49.99 + seededRandom(productSeed + 1) * 1850) * 83;
       const quantity = 1 + Math.floor(seededRandom(productSeed + 2) * 2);
 
       items.push({
@@ -205,7 +205,7 @@ export const generateSpendingAnalytics = (userId: string) => {
   for (let i = 0; i < 12; i++) {
     const monthIndex = (currentMonth - 11 + i + 12) % 12;
     const monthSeed = seed + 7000 + i * 100;
-    const baseAmount = 100 + seededRandom(monthSeed) * 1500;
+    const baseAmount = (100 + seededRandom(monthSeed) * 1500) * 83;
     const seasonalMultiplier = monthIndex === 11 ? 1.8 : monthIndex === 10 ? 1.5 : 1;
     const amount = Math.round(baseAmount * seasonalMultiplier * 100) / 100;
 

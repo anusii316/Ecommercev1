@@ -70,7 +70,7 @@ const productNames = [
 ];
 
 export const products: Product[] = Array.from({ length: 50 }, (_, index) => {
-  const price = Math.round((Math.random() * 200 + 20) * 100) / 100;
+  const price = Math.round((Math.random() * 200 + 20) * 83 * 100) / 100;
   const hasDiscount = Math.random() > 0.5;
   const originalPrice = hasDiscount ? Math.round(price * 1.3 * 100) / 100 : undefined;
 

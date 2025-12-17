@@ -268,12 +268,12 @@ export const ProductDetail = () => {
               <div className="mb-2">
                 <div className="flex items-baseline gap-3 mb-1">
                   <span className="text-3xl font-bold text-gray-900">
-                    ${product.price.toFixed(2)}
+                    ₹{product.price.toFixed(2)}
                   </span>
                   {product.originalPrice && (
                     <>
                       <span className="text-lg text-gray-400 line-through">
-                        ${product.originalPrice.toFixed(2)}
+                        ₹{product.originalPrice.toFixed(2)}
                       </span>
                       <span className="text-lg font-semibold text-green-600">
                         {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% off
@@ -283,7 +283,7 @@ export const ProductDetail = () => {
                 </div>
                 {product.originalPrice && (
                   <p className="text-sm text-gray-600">
-                    You save: ${(product.originalPrice - product.price).toFixed(2)}
+                    You save: ₹{(product.originalPrice - product.price).toFixed(2)}
                   </p>
                 )}
               </div>
@@ -301,7 +301,7 @@ export const ProductDetail = () => {
               <div className="flex flex-col items-center text-center">
                 <Truck className="w-8 h-8 text-blue-600 mb-2" />
                 <p className="text-xs font-medium text-gray-900">Free Delivery</p>
-                <p className="text-xs text-gray-500">On orders over $50</p>
+                <p className="text-xs text-gray-500">On orders over ₹500</p>
               </div>
               <div className="flex flex-col items-center text-center">
                 <RotateCcw className="w-8 h-8 text-blue-600 mb-2" />
