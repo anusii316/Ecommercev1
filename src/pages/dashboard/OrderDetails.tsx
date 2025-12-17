@@ -14,6 +14,7 @@ import {
   XCircle,
 } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
+import { useToastStore } from '../../stores/toastStore';
 import { OrderTrackingModal } from '../../components/OrderTrackingModal';
 import { CancelOrderModal } from '../../components/CancelOrderModal';
 
@@ -21,8 +22,10 @@ export const OrderDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getOrderById, cancelOrder } = useOrderStore();
+  const { addToast } = useToastStore();
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const order = getOrderById(id!);
 
@@ -43,6 +46,14 @@ export const OrderDetails = () => {
   const handleCancelOrder = () => {
     cancelOrder(id!);
     setIsCancelModalOpen(false);
+  };
+
+  const handleDownloadInvoice = () => {
+    setIsDownloading(true);
+    setTimeout(() => {
+      setIsDownloading(false);
+      addToast('Invoice downloaded successfully!', 'success');
+    }, 2500);
   };
 
   const subtotal = order.items.reduce(
@@ -325,16 +336,16 @@ export const OrderDetails = () => {
             )}
 
             <button
-              onClick={() => console.log('Download Invoice clicked')}
-              disabled={order.status === 'Cancelled'}
+              onClick={handleDownloadInvoice}
+              disabled={order.status === 'Cancelled' || isDownloading}
               className={`w-full py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 ${
-                order.status === 'Cancelled'
+                order.status === 'Cancelled' || isDownloading
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                   : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
               }`}
             >
-              <Download className="w-5 h-5" />
-              Download Invoice
+              <Download className={`w-5 h-5 ${isDownloading ? 'animate-bounce' : ''}`} />
+              {isDownloading ? 'Preparing Invoice...' : 'Download Invoice'}
             </button>
 
             {order.status === 'Processing' && (
