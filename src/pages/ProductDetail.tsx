@@ -164,8 +164,13 @@ export const ProductDetail = () => {
           text: product.description,
           url: window.location.href,
         });
+        addToast('Shared successfully!', 'success');
       } catch (err) {
-        addToast('Share cancelled', 'info');
+        if (err instanceof Error && err.name === 'AbortError') {
+          return;
+        }
+        navigator.clipboard.writeText(window.location.href);
+        addToast('Link copied to clipboard!', 'success');
       }
     } else {
       navigator.clipboard.writeText(window.location.href);
