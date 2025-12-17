@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Package, Calendar, DollarSign, Eye, Download, XCircle, CreditCard, MapPin, ShoppingBag } from 'lucide-react';
+import { Package, Calendar, DollarSign, Eye, XCircle, CreditCard, MapPin, ShoppingBag } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
 import { CancelOrderModal } from '../../components/CancelOrderModal';
 
@@ -189,32 +189,17 @@ export const OrderHistory = () => {
                       </div>
                     </div>
 
-                    <div className="flex gap-3 pt-4">
-                      <button
-                        onClick={() => {
-                          console.log('Download Invoice clicked for order:', order.orderNumber);
-                        }}
-                        disabled={order.status === 'Cancelled'}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors ${
-                          order.status === 'Cancelled'
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
-                        }`}
-                      >
-                        <Download className="w-5 h-5" />
-                        Download Invoice
-                      </button>
-
-                      {(order.status === 'Processing' || order.status === 'Shipped') && (
+                    {order.status === 'Processing' && (
+                      <div className="flex gap-3 pt-4">
                         <button
                           onClick={() => setCancellingOrder(order)}
-                          className="flex-1 flex items-center justify-center gap-2 bg-white hover:bg-red-50 text-red-600 border-2 border-red-600 py-3 px-4 rounded-lg font-semibold transition-colors"
+                          className="w-full flex items-center justify-center gap-2 bg-white hover:bg-red-50 text-red-600 border-2 border-red-600 py-3 px-4 rounded-lg font-semibold transition-colors"
                         >
                           <XCircle className="w-5 h-5" />
                           Cancel Order
                         </button>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
