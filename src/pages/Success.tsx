@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, Home, Package, CreditCard, Smartphone, Wallet, MapPin, Calendar, Truck, X, Check } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useCartStore } from '../stores/cartStore';
 
 export const Success = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { clearCart } = useCartStore();
   const [showTrackingModal, setShowTrackingModal] = useState(false);
+
+  useEffect(() => {
+    clearCart();
+  }, [clearCart]);
 
   const {
     orderNumber,

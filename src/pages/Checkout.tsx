@@ -179,7 +179,6 @@ export const Checkout = () => {
       };
 
       addOrder(newOrder);
-      clearCart();
 
       navigate('/success', {
         state: {
