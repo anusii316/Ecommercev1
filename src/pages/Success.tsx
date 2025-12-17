@@ -1,16 +1,31 @@
-import { motion } from 'framer-motion';
-import { CheckCircle, Home, Package, CreditCard, Smartphone, Wallet } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { CheckCircle, Home, Package, CreditCard, Smartphone, Wallet, MapPin, Calendar, Truck, X, Check } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Success = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
 
-  const { orderNumber, paymentMethod, paymentStatus, orderStatus } = location.state || {
+  const {
+    orderNumber,
+    paymentMethod,
+    paymentStatus,
+    orderStatus,
+    orderDate,
+    orderItems,
+    shippingAddress,
+    orderTotal
+  } = location.state || {
     orderNumber: Math.random().toString(36).substring(2, 11).toUpperCase(),
     paymentMethod: 'card',
     paymentStatus: 'Paid (Mock)',
-    orderStatus: 'Placed'
+    orderStatus: 'Processing',
+    orderDate: new Date().toISOString().split('T')[0],
+    orderItems: [],
+    shippingAddress: 'Address not provided',
+    orderTotal: 0
   };
 
   const getPaymentIcon = () => {
@@ -91,7 +106,35 @@ export const Success = () => {
               <p className="text-2xl font-bold text-blue-600">{orderNumber}</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Calendar className="w-4 h-4 text-gray-600" />
+                  <span className="text-xs font-medium text-gray-600">
+                    Order Date
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-gray-900 text-center">
+                  {new Date(orderDate).toLocaleDateString('en-IN', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Package className="w-4 h-4 text-gray-600" />
+                  <span className="text-xs font-medium text-gray-600">
+                    Order Status
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-blue-600 text-center">
+                  {orderStatus}
+                </p>
+              </div>
+
               <div className="bg-gray-50 rounded-lg p-4">
                 <div className="flex items-center justify-center gap-2 mb-2">
                   {getPaymentIcon()}
@@ -112,25 +155,58 @@ export const Success = () => {
                   </span>
                 </div>
                 <p className={`text-sm font-semibold text-center ${
-                  paymentStatus === 'Pending' ? 'text-orange-600' : 'text-green-600'
+                  paymentStatus === 'Pending (COD)' ? 'text-orange-600' : 'text-green-600'
                 }`}>
                   {paymentStatus}
                 </p>
               </div>
+            </div>
 
-              <div className="bg-gray-50 rounded-lg p-4">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <Package className="w-4 h-4 text-gray-600" />
-                  <span className="text-xs font-medium text-gray-600">
-                    Order Status
-                  </span>
-                </div>
-                <p className="text-sm font-semibold text-blue-600 text-center">
-                  {orderStatus}
-                </p>
+            <div className="bg-gray-50 rounded-lg p-4 text-left">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin className="w-4 h-4 text-gray-600" />
+                <span className="text-xs font-medium text-gray-600">
+                  Delivery Address
+                </span>
               </div>
+              <p className="text-sm text-gray-900">
+                {shippingAddress}
+              </p>
             </div>
           </motion.div>
+
+          {orderItems && orderItems.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.55 }}
+              className="mb-8"
+            >
+              <h3 className="text-lg font-bold text-gray-900 mb-4 text-left">Order Items</h3>
+              <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                {orderItems.map((item: any, index: number) => (
+                  <div key={index} className="flex items-center gap-4 pb-3 border-b border-gray-200 last:border-0 last:pb-0">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-16 h-16 object-cover rounded-lg"
+                    />
+                    <div className="flex-1 text-left">
+                      <h4 className="font-medium text-gray-900">{item.name}</h4>
+                      <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                    </div>
+                    <span className="font-semibold text-gray-900">
+                      ₹{item.price.toFixed(2)}
+                    </span>
+                  </div>
+                ))}
+                <div className="pt-3 border-t-2 border-gray-300 flex justify-between items-center">
+                  <span className="font-bold text-gray-900">Total Amount</span>
+                  <span className="text-xl font-bold text-blue-600">₹{orderTotal.toFixed(2)}</span>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -192,24 +268,162 @@ export const Success = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7 }}
-            className="flex flex-col sm:flex-row gap-4"
+            className="flex flex-col gap-3"
           >
-            <button
-              onClick={() => navigate('/')}
-              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
-            >
-              <Home className="w-5 h-5" />
-              Back to Home
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <button
+                onClick={() => navigate('/account')}
+                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+              >
+                <Package className="w-5 h-5" />
+                View Order History
+              </button>
+              <button
+                onClick={() => setShowTrackingModal(true)}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+              >
+                <Truck className="w-5 h-5" />
+                Track Order
+              </button>
+            </div>
             <button
               onClick={() => navigate('/shop')}
-              className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
+              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
             >
               Continue Shopping
             </button>
           </motion.div>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {showTrackingModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowTrackingModal(false)}
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Track Order</h3>
+                <button
+                  onClick={() => setShowTrackingModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="mb-6">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium text-gray-600">Order Number</span>
+                    <span className="text-sm font-bold text-blue-600">{orderNumber}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-gray-600">Status</span>
+                    <span className="text-sm font-bold text-blue-600">{orderStatus}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center">
+                      <Check className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="absolute top-10 left-5 w-0.5 h-16 bg-green-600"></div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h4 className="font-bold text-gray-900 mb-1">Order Confirmed</h4>
+                    <p className="text-sm text-gray-600 mb-2">{new Date(orderDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+                    <p className="text-sm text-gray-500">Your order has been placed successfully</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
+                      <Package className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="absolute top-10 left-5 w-0.5 h-16 bg-gray-300"></div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h4 className="font-bold text-gray-900 mb-1">Processing</h4>
+                    <p className="text-sm text-gray-600 mb-2">In progress</p>
+                    <p className="text-sm text-gray-500">We're preparing your items for shipment</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                      <Truck className="w-5 h-5 text-gray-600" />
+                    </div>
+                    <div className="absolute top-10 left-5 w-0.5 h-16 bg-gray-300"></div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h4 className="font-bold text-gray-400 mb-1">Shipped</h4>
+                    <p className="text-sm text-gray-500 mb-2">Pending</p>
+                    <p className="text-sm text-gray-400">Your order will be shipped soon</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                      <Truck className="w-5 h-5 text-gray-600" />
+                    </div>
+                    <div className="absolute top-10 left-5 w-0.5 h-16 bg-gray-300"></div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h4 className="font-bold text-gray-400 mb-1">Out for Delivery</h4>
+                    <p className="text-sm text-gray-500 mb-2">Pending</p>
+                    <p className="text-sm text-gray-400">Your order is on its way to you</p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                      <Home className="w-5 h-5 text-gray-600" />
+                    </div>
+                  </div>
+                  <div className="flex-1 pt-1">
+                    <h4 className="font-bold text-gray-400 mb-1">Delivered</h4>
+                    <p className="text-sm text-gray-500 mb-2">Pending</p>
+                    <p className="text-sm text-gray-400">Expected within 3-5 business days</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8 bg-gray-50 rounded-lg p-4">
+                <p className="text-sm text-gray-600 text-center">
+                  <strong>Note:</strong> This is a demo tracking timeline. Updates will be shown here as your order progresses.
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <button
+                  onClick={() => setShowTrackingModal(false)}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
