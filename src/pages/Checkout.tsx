@@ -28,7 +28,7 @@ interface BillingFormData {
 export const Checkout = () => {
   const navigate = useNavigate();
   const { items, getTotalPrice, clearCart } = useCartStore();
-  const { savedAddresses, addOrder } = useOrderStore();
+  const { savedAddresses, addOrder, paymentMethods } = useOrderStore();
   const { user } = useAuthStore();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'cod' | ''>('');
@@ -37,6 +37,14 @@ export const Checkout = () => {
   const [billingData, setBillingData] = useState<BillingFormData | null>(null);
   const [addressMode, setAddressMode] = useState<'saved' | 'new'>(savedAddresses.length > 0 ? 'saved' : 'new');
   const [selectedSavedAddress, setSelectedSavedAddress] = useState<any>(null);
+  const [upiId, setUpiId] = useState('');
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
+  const [cardName, setCardName] = useState('');
+  const [useSavedPayment, setUseSavedPayment] = useState(false);
+  const [selectedSavedPayment, setSelectedSavedPayment] = useState<any>(null);
+  const [processingMessage, setProcessingMessage] = useState('');
 
   const {
     register: registerShipping,
@@ -114,7 +122,29 @@ export const Checkout = () => {
       return;
     }
 
+    if (paymentMethod === 'upi' && !useSavedPayment && !upiId.trim()) {
+      alert('Please enter your UPI ID');
+      return;
+    }
+
+    if (paymentMethod === 'card' && !useSavedPayment) {
+      if (!cardNumber.trim() || !cardExpiry.trim() || !cardCvv.trim() || !cardName.trim()) {
+        alert('Please fill in all card details');
+        return;
+      }
+    }
+
     setIsProcessing(true);
+
+    if (paymentMethod === 'upi') {
+      setProcessingMessage('Processing UPI payment...');
+    } else if (paymentMethod === 'card') {
+      setProcessingMessage('Processing card payment...');
+    } else if (paymentMethod === 'cod') {
+      setProcessingMessage('Placing your order...');
+    }
+
+    const processingDelay = paymentMethod === 'upi' ? 2500 : paymentMethod === 'card' ? 2000 : 1000;
 
     setTimeout(() => {
       const orderNumber = `NX${Date.now().toString().slice(-8)}`;
@@ -139,7 +169,7 @@ export const Checkout = () => {
         })),
         shippingAddress: shippingAddressStr,
         paymentMethod,
-        paymentStatus: paymentMethod === 'cod' ? 'Pending' : 'Paid (Mock)',
+        paymentStatus: paymentMethod === 'cod' ? 'Pending (COD)' : 'Paid (Mock)',
       };
 
       addOrder(newOrder);
@@ -149,11 +179,11 @@ export const Checkout = () => {
         state: {
           orderNumber,
           paymentMethod,
-          paymentStatus: paymentMethod === 'cod' ? 'Pending' : 'Paid (Mock)',
+          paymentStatus: paymentMethod === 'cod' ? 'Pending (COD)' : 'Paid (Mock)',
           orderStatus: 'Processing'
         }
       });
-    }, 2000);
+    }, processingDelay);
   };
 
   return (
@@ -693,68 +723,244 @@ export const Checkout = () => {
                     </div>
 
                     <div className="space-y-4">
-                      <button
-                        onClick={() => setPaymentMethod('upi')}
-                        className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
-                          paymentMethod === 'upi'
-                            ? 'border-blue-600 bg-blue-50 shadow-md'
-                            : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <Smartphone className="w-6 h-6 text-blue-600" />
-                            <div>
-                              <h3 className="font-semibold text-gray-900">
-                                UPI Payment
-                              </h3>
-                              <p className="text-sm text-gray-600">
-                                Google Pay / PhonePe / Paytm (Mock)
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPaymentMethod('upi');
+                            setUseSavedPayment(false);
+                            setSelectedSavedPayment(null);
+                          }}
+                          className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
+                            paymentMethod === 'upi'
+                              ? 'border-blue-600 bg-blue-50 shadow-md'
+                              : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Smartphone className="w-6 h-6 text-blue-600" />
+                              <div>
+                                <h3 className="font-semibold text-gray-900">
+                                  UPI Payment
+                                </h3>
+                                <p className="text-sm text-gray-600">
+                                  Google Pay / PhonePe / Paytm
+                                </p>
+                              </div>
+                            </div>
+                            {paymentMethod === 'upi' && (
+                              <Check className="w-6 h-6 text-blue-600" />
+                            )}
+                          </div>
+                        </button>
+
+                        {paymentMethod === 'upi' && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-4 p-5 bg-blue-50 border-2 border-blue-200 rounded-lg"
+                          >
+                            <div className="mb-4">
+                              <label className="block text-sm font-medium text-gray-700 mb-2">
+                                UPI ID *
+                              </label>
+                              <input
+                                type="text"
+                                value={upiId}
+                                onChange={(e) => setUpiId(e.target.value)}
+                                placeholder="yourname@paytm"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              />
+                            </div>
+                            <div className="bg-blue-100 border border-blue-300 rounded-lg p-3">
+                              <p className="text-sm text-blue-900">
+                                You will be redirected to your UPI app to complete payment.
+                                <br />
+                                <span className="font-semibold">(This is a demo checkout. Payment will be simulated.)</span>
                               </p>
                             </div>
-                          </div>
-                          {paymentMethod === 'upi' && (
-                            <div className="flex items-center gap-2">
-                              <Check className="w-6 h-6 text-blue-600" />
+                          </motion.div>
+                        )}
+                      </div>
+
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setPaymentMethod('card');
+                            setUseSavedPayment(false);
+                            setSelectedSavedPayment(null);
+                          }}
+                          className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
+                            paymentMethod === 'card'
+                              ? 'border-blue-600 bg-blue-50 shadow-md'
+                              : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <CreditCard className="w-6 h-6 text-blue-600" />
+                              <div>
+                                <h3 className="font-semibold text-gray-900">
+                                  Credit / Debit Card
+                                </h3>
+                                <p className="text-sm text-gray-600">
+                                  Visa, Mastercard, RuPay
+                                </p>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      </button>
+                            {paymentMethod === 'card' && (
+                              <Check className="w-6 h-6 text-blue-600" />
+                            )}
+                          </div>
+                        </button>
+
+                        {paymentMethod === 'card' && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mt-4 p-5 bg-blue-50 border-2 border-blue-200 rounded-lg"
+                          >
+                            {paymentMethods.filter(pm => pm.type === 'card').length > 0 && (
+                              <div className="mb-4">
+                                <h4 className="text-sm font-semibold text-gray-900 mb-3">Saved Cards</h4>
+                                <div className="space-y-2 mb-4">
+                                  {paymentMethods.filter(pm => pm.type === 'card').map((pm) => (
+                                    <button
+                                      key={pm.id}
+                                      type="button"
+                                      onClick={() => {
+                                        setUseSavedPayment(true);
+                                        setSelectedSavedPayment(pm);
+                                      }}
+                                      className={`w-full p-4 border-2 rounded-lg text-left transition-all ${
+                                        selectedSavedPayment?.id === pm.id
+                                          ? 'border-blue-600 bg-white shadow-md'
+                                          : 'border-gray-300 hover:border-blue-400 bg-white'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                          <CreditCard className="w-5 h-5 text-gray-600" />
+                                          <div>
+                                            <p className="font-medium text-gray-900">{pm.cardNumber}</p>
+                                            <p className="text-xs text-gray-500">{pm.cardHolder}</p>
+                                          </div>
+                                        </div>
+                                        {selectedSavedPayment?.id === pm.id && (
+                                          <Check className="w-5 h-5 text-blue-600" />
+                                        )}
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setUseSavedPayment(false);
+                                    setSelectedSavedPayment(null);
+                                  }}
+                                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                >
+                                  + Use a different card
+                                </button>
+                              </div>
+                            )}
+
+                            {!useSavedPayment && (
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Card Number *
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={cardNumber}
+                                    onChange={(e) => {
+                                      const value = e.target.value.replace(/\D/g, '');
+                                      if (value.length <= 16) {
+                                        const formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+                                        setCardNumber(formatted);
+                                      }
+                                    }}
+                                    placeholder="1234 5678 9012 3456"
+                                    maxLength={19}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      Expiry Date *
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={cardExpiry}
+                                      onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        if (value.length <= 4) {
+                                          const formatted = value.length >= 2
+                                            ? `${value.slice(0, 2)}/${value.slice(2)}`
+                                            : value;
+                                          setCardExpiry(formatted);
+                                        }
+                                      }}
+                                      placeholder="MM/YY"
+                                      maxLength={5}
+                                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                                      CVV *
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={cardCvv}
+                                      onChange={(e) => {
+                                        const value = e.target.value.replace(/\D/g, '');
+                                        if (value.length <= 3) {
+                                          setCardCvv(value);
+                                        }
+                                      }}
+                                      placeholder="123"
+                                      maxLength={3}
+                                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Name on Card *
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={cardName}
+                                    onChange={(e) => setCardName(e.target.value)}
+                                    placeholder="John Doe"
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </motion.div>
+                        )}
+                      </div>
 
                       <button
-                        onClick={() => setPaymentMethod('card')}
-                        className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
-                          paymentMethod === 'card'
-                            ? 'border-blue-600 bg-blue-50 shadow-md'
-                            : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <CreditCard className="w-6 h-6 text-blue-600" />
-                            <div>
-                              <h3 className="font-semibold text-gray-900">
-                                Credit / Debit Card
-                              </h3>
-                              <p className="text-sm text-gray-600">
-                                Visa, Mastercard, RuPay (Mock)
-                              </p>
-                            </div>
-                          </div>
-                          {paymentMethod === 'card' && (
-                            <div className="flex items-center gap-2">
-                              <Check className="w-6 h-6 text-blue-600" />
-                            </div>
-                          )}
-                        </div>
-                      </button>
-
-                      <button
-                        onClick={() => setPaymentMethod('cod')}
+                        type="button"
+                        onClick={() => {
+                          setPaymentMethod('cod');
+                          setUseSavedPayment(false);
+                          setSelectedSavedPayment(null);
+                        }}
                         className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
                           paymentMethod === 'cod'
-                            ? 'border-blue-600 bg-blue-50 shadow-md'
-                            : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
+                            ? 'border-green-600 bg-green-50 shadow-md'
+                            : 'border-gray-300 hover:border-green-400 hover:shadow-sm'
                         }`}
                       >
                         <div className="flex items-center justify-between">
@@ -770,9 +976,7 @@ export const Checkout = () => {
                             </div>
                           </div>
                           {paymentMethod === 'cod' && (
-                            <div className="flex items-center gap-2">
-                              <Check className="w-6 h-6 text-blue-600" />
-                            </div>
+                            <Check className="w-6 h-6 text-green-600" />
                           )}
                         </div>
                       </button>
@@ -781,20 +985,23 @@ export const Checkout = () => {
 
                   <div className="flex gap-4">
                     <button
+                      type="button"
                       onClick={() => setStep(2)}
-                      className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
+                      disabled={isProcessing}
+                      className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-4 rounded-lg font-semibold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Back
                     </button>
                     <button
+                      type="button"
                       onClick={handlePlaceOrder}
                       disabled={isProcessing}
-                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-semibold text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
                     >
                       {isProcessing ? (
                         <>
                           <Loader2 className="w-5 h-5 animate-spin" />
-                          Processing...
+                          {processingMessage || 'Processing...'}
                         </>
                       ) : (
                         'Place Order'
