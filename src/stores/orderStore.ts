@@ -59,6 +59,7 @@ interface OrderState {
   savedAddresses: SavedAddress[];
   paymentMethods: PaymentMethod[];
   initializeUserData: (userId: string, userName: string) => void;
+  resetUserData: () => void;
   addOrder: (order: Order) => void;
   getOrderById: (id: string) => Order | undefined;
   cancelOrder: (id: string) => void;
@@ -691,30 +692,23 @@ export const useOrderStore = create<OrderState>()(
           return;
         }
 
-        let userOrders = loadUserOrders(userId);
-        let userAddresses = loadUserAddresses(userId);
-        let userPayments = loadUserPayments(userId);
-
-        if (userOrders.length === 0) {
-          userOrders = generateUserOrders(userId);
-          saveUserOrders(userId, userOrders);
-        }
-
-        if (userAddresses.length === 0) {
-          userAddresses = generateUserAddresses(userId, userName);
-          saveUserAddresses(userId, userAddresses);
-        }
-
-        if (userPayments.length === 0) {
-          userPayments = generateUserPaymentMethods(userId, userName);
-          saveUserPayments(userId, userPayments);
-        }
+        const userOrders = loadUserOrders(userId);
+        const userAddresses = loadUserAddresses(userId);
+        const userPayments = loadUserPayments(userId);
 
         set({
           currentUserId: userId,
           orders: userOrders,
           savedAddresses: userAddresses,
           paymentMethods: userPayments,
+        });
+      },
+      resetUserData: () => {
+        set({
+          currentUserId: null,
+          orders: [],
+          savedAddresses: [],
+          paymentMethods: [],
         });
       },
       addOrder: (order) => {

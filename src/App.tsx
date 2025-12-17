@@ -30,10 +30,10 @@ import { useNotificationStore } from './stores/notificationStore';
 function App() {
   const { setProducts } = useProductsStore();
   const { user, isAuthenticated } = useAuthStore();
-  const { initializeUserData: initOrderData } = useOrderStore();
+  const { initializeUserData: initOrderData, resetUserData: resetOrderData } = useOrderStore();
   const { initializeUserData: initWishlistData } = useWishlistStore();
   const { initializeUserData: initCartData } = useCartStore();
-  const { initializeUserData: initNotificationData } = useNotificationStore();
+  const { initializeUserData: initNotificationData, resetUserData: resetNotificationData } = useNotificationStore();
 
   useEffect(() => {
     setProducts(libProducts);
@@ -46,12 +46,13 @@ function App() {
       initCartData(user.id);
       initNotificationData(user.id);
     } else {
+      resetOrderData();
+      resetNotificationData();
       const guestUserId = 'guest';
       initWishlistData(guestUserId);
       initCartData(guestUserId);
-      initNotificationData(guestUserId);
     }
-  }, [isAuthenticated, user, initOrderData, initWishlistData, initCartData, initNotificationData]);
+  }, [isAuthenticated, user, initOrderData, resetOrderData, initWishlistData, initCartData, initNotificationData, resetNotificationData]);
 
   return (
     <BrowserRouter>

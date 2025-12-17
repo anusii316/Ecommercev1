@@ -69,28 +69,6 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     }
   };
 
-  const handleDemoLogin = () => {
-    const demoEmail = 'demo@nexusmarket.com';
-    const demoPassword = 'demo123';
-    const demoName = 'Demo User';
-
-    register(demoName, demoEmail, demoPassword);
-    const success = login(demoEmail, demoPassword);
-
-    if (success) {
-      setTimeout(() => {
-        const currentUser = useAuthStore.getState().user;
-        if (currentUser) {
-          initializeUserData(currentUser.id, currentUser.name);
-        }
-      }, 0);
-      addToast('Logged in as Demo User!', 'success');
-      onClose();
-      setName('');
-      setEmail('');
-      setPassword('');
-    }
-  };
 
   return (
     <AnimatePresence>
@@ -183,25 +161,6 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                 {isLogin ? 'Sign In' : 'Create Account'}
               </button>
             </form>
-
-            <div className="mt-4">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
-                </div>
-                <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or</span>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={handleDemoLogin}
-                className="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-3 rounded-lg transition-colors border border-gray-300"
-              >
-                Try Demo Account
-              </button>
-            </div>
 
             <div className="mt-6 text-center">
               <button
