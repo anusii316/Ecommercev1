@@ -11,15 +11,18 @@ import {
   DollarSign,
   Eye,
   Download,
+  XCircle,
 } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
 import { OrderTrackingModal } from '../../components/OrderTrackingModal';
+import { CancelOrderModal } from '../../components/CancelOrderModal';
 
 export const OrderDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getOrderById } = useOrderStore();
+  const { getOrderById, cancelOrder } = useOrderStore();
   const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const order = getOrderById(id!);
 
@@ -36,6 +39,11 @@ export const OrderDetails = () => {
       </div>
     );
   }
+
+  const handleCancelOrder = () => {
+    cancelOrder(id!);
+    setIsCancelModalOpen(false);
+  };
 
   const subtotal = order.items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -355,6 +363,22 @@ export const OrderDetails = () => {
               <Download className="w-5 h-5" />
               Download Invoice
             </button>
+            {(order.status === 'Processing' || order.status === 'Shipped') && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Cancel Order clicked');
+                  setIsCancelModalOpen(true);
+                }}
+                type="button"
+                className="w-full bg-white hover:bg-red-50 active:bg-red-100 text-red-600 border-2 border-red-600 py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
+              >
+                <XCircle className="w-5 h-5" />
+                Cancel Order
+              </button>
+            )}
           </motion.div>
         </div>
       </div>
@@ -363,6 +387,13 @@ export const OrderDetails = () => {
         isOpen={isTrackingModalOpen}
         onClose={() => setIsTrackingModalOpen(false)}
         order={order}
+      />
+
+      <CancelOrderModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleCancelOrder}
+        orderNumber={order.orderNumber}
       />
     </div>
   );

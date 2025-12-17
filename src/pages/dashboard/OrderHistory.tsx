@@ -1,15 +1,17 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Package, ChevronDown, ChevronUp, Eye, Download, MapPin } from 'lucide-react';
+import { Package, ChevronDown, ChevronUp, Eye, Download, MapPin, XCircle } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
 import { OrderTrackingModal } from '../../components/OrderTrackingModal';
+import { CancelOrderModal } from '../../components/CancelOrderModal';
 
 export const OrderHistory = () => {
-  const { orders } = useOrderStore();
+  const { orders, cancelOrder } = useOrderStore();
   const navigate = useNavigate();
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [trackingOrder, setTrackingOrder] = useState<any>(null);
+  const [cancellingOrder, setCancellingOrder] = useState<any>(null);
 
   const statusColors: Record<string, string> = {
     Processing: 'bg-yellow-100 text-yellow-800',
@@ -21,6 +23,13 @@ export const OrderHistory = () => {
 
   const toggleExpand = (orderId: string) => {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
+  };
+
+  const handleCancelOrder = () => {
+    if (cancellingOrder) {
+      cancelOrder(cancellingOrder.id);
+      setCancellingOrder(null);
+    }
   };
 
   return (
@@ -142,72 +151,94 @@ export const OrderHistory = () => {
                       ))}
                     </div>
 
-                    <div className="flex gap-3">
-                      {order.status === 'Cancelled' ? (
+                    <div className="space-y-3">
+                      <div className="flex gap-3">
+                        {order.status === 'Cancelled' ? (
+                          <button
+                            disabled
+                            className="flex-1 flex items-center justify-center gap-2 bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed"
+                          >
+                            <Package className="w-5 h-5" />
+                            Order Cancelled
+                          </button>
+                        ) : order.status === 'Delivered' ? (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              e.nativeEvent.stopImmediatePropagation();
+                              console.log('View Order Details clicked for order:', order.orderNumber, order);
+                              setTrackingOrder(order);
+                            }}
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                            }}
+                            type="button"
+                            className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg cursor-pointer"
+                            style={{ pointerEvents: 'auto', zIndex: 10 }}
+                          >
+                            <Eye className="w-5 h-5" />
+                            View Order Details
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              e.nativeEvent.stopImmediatePropagation();
+                              console.log('Track Order clicked for order:', order.orderNumber, order);
+                              setTrackingOrder(order);
+                            }}
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                            }}
+                            type="button"
+                            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg cursor-pointer"
+                            style={{ pointerEvents: 'auto', zIndex: 10 }}
+                          >
+                            <MapPin className="w-5 h-5" />
+                            Track Order
+                          </button>
+                        )}
                         <button
-                          disabled
-                          className="flex-1 flex items-center justify-center gap-2 bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            console.log('Download Invoice clicked for order:', order.orderNumber);
+                          }}
+                          type="button"
+                          disabled={order.status === 'Cancelled'}
+                          className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors ${
+                            order.status === 'Cancelled'
+                              ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                              : 'bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 cursor-pointer'
+                          }`}
+                          style={{ pointerEvents: order.status === 'Cancelled' ? 'none' : 'auto' }}
                         >
-                          <Package className="w-5 h-5" />
-                          Order Cancelled
+                          <Download className="w-5 h-5" />
+                          Download Invoice
                         </button>
-                      ) : order.status === 'Delivered' ? (
+                      </div>
+                      {(order.status === 'Processing' || order.status === 'Shipped') && (
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             e.nativeEvent.stopImmediatePropagation();
-                            console.log('View Order Details clicked for order:', order.orderNumber, order);
-                            setTrackingOrder(order);
+                            console.log('Cancel Order clicked for order:', order.orderNumber, order);
+                            setCancellingOrder(order);
                           }}
                           onMouseDown={(e) => {
                             e.stopPropagation();
                           }}
                           type="button"
-                          className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg cursor-pointer"
+                          className="w-full flex items-center justify-center gap-2 bg-white hover:bg-red-50 active:bg-red-100 text-red-600 border-2 border-red-600 py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer"
                           style={{ pointerEvents: 'auto', zIndex: 10 }}
                         >
-                          <Eye className="w-5 h-5" />
-                          View Order Details
-                        </button>
-                      ) : (
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            e.nativeEvent.stopImmediatePropagation();
-                            console.log('Track Order clicked for order:', order.orderNumber, order);
-                            setTrackingOrder(order);
-                          }}
-                          onMouseDown={(e) => {
-                            e.stopPropagation();
-                          }}
-                          type="button"
-                          className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg cursor-pointer"
-                          style={{ pointerEvents: 'auto', zIndex: 10 }}
-                        >
-                          <MapPin className="w-5 h-5" />
-                          Track Order
+                          <XCircle className="w-5 h-5" />
+                          Cancel Order
                         </button>
                       )}
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          console.log('Download Invoice clicked for order:', order.orderNumber);
-                        }}
-                        type="button"
-                        disabled={order.status === 'Cancelled'}
-                        className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors ${
-                          order.status === 'Cancelled'
-                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                            : 'bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 cursor-pointer'
-                        }`}
-                        style={{ pointerEvents: order.status === 'Cancelled' ? 'none' : 'auto' }}
-                      >
-                        <Download className="w-5 h-5" />
-                        Download Invoice
-                      </button>
                     </div>
                   </div>
                 </motion.div>
@@ -222,6 +253,15 @@ export const OrderHistory = () => {
           isOpen={true}
           onClose={() => setTrackingOrder(null)}
           order={trackingOrder}
+        />
+      )}
+
+      {cancellingOrder && (
+        <CancelOrderModal
+          isOpen={true}
+          onClose={() => setCancellingOrder(null)}
+          onConfirm={handleCancelOrder}
+          orderNumber={cancellingOrder.orderNumber}
         />
       )}
     </div>
