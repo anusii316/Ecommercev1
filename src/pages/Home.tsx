@@ -167,15 +167,14 @@ export const Home = () => {
               🎉 MEGA SALE - UP TO 70% OFF
             </motion.div>
             <h1 className="text-7xl md:text-8xl font-bold text-white mb-6 leading-tight">
-              Welcome to
+              Shop the Latest Products at
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
                 NexusMarket
               </span>
             </h1>
             <p className="text-2xl md:text-3xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Discover amazing products at unbeatable prices. Shop the latest
-              trends and get exclusive deals today!
+              Your ultimate destination for premium products at incredible prices. Discover thousands of items across all categories with fast shipping and secure checkout.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.button
@@ -190,10 +189,10 @@ export const Home = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={scrollToDeals}
+                onClick={scrollToCategories}
                 className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-2 border-white px-10 py-5 rounded-lg font-semibold text-xl flex items-center gap-3 mx-auto transition-colors"
               >
-                View Deals
+                Explore Categories
                 <Tag className="w-6 h-6" />
               </motion.button>
             </div>
