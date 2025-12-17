@@ -22,6 +22,8 @@ export interface Order {
   status: 'Processing' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Cancelled';
   items: OrderItem[];
   shippingAddress: string;
+  paymentMethod?: string;
+  paymentStatus?: string;
 }
 
 export interface SavedAddress {

@@ -272,7 +272,14 @@ export const OrderDetails = () => {
                   <p className="text-sm font-medium text-gray-900 mb-1">
                     Payment Method
                   </p>
-                  <p className="text-sm text-gray-600">Credit Card</p>
+                  <p className="text-sm text-gray-600">
+                    {order.paymentMethod === 'upi' ? 'UPI Payment' :
+                     order.paymentMethod === 'card' ? 'Credit/Debit Card' :
+                     order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Credit Card'}
+                  </p>
+                  {order.paymentStatus && (
+                    <p className="text-xs text-gray-500 mt-1">{order.paymentStatus}</p>
+                  )}
                 </div>
               </div>
             </div>
