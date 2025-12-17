@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Package, ChevronDown, ChevronUp, Eye, Download, MapPin, XCircle } from 'lucide-react';
@@ -12,10 +12,6 @@ export const OrderHistory = () => {
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
   const [trackingOrder, setTrackingOrder] = useState<any>(null);
   const [cancellingOrder, setCancellingOrder] = useState<any>(null);
-
-  useEffect(() => {
-    console.log('trackingOrder state changed:', trackingOrder);
-  }, [trackingOrder]);
 
   const statusColors: Record<string, string> = {
     Processing: 'bg-yellow-100 text-yellow-800',

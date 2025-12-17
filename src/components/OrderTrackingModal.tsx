@@ -1,6 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Package, Truck, MapPin, CheckCircle, Clock } from 'lucide-react';
-import { createPortal } from 'react-dom';
 
 interface OrderTrackingModalProps {
   isOpen: boolean;
@@ -72,7 +71,7 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
 
   const trackingSteps = getTrackingSteps();
 
-  return createPortal(
+  return (
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center">
@@ -261,7 +260,6 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
           </motion.div>
         </div>
       )}
-    </AnimatePresence>,
-    document.body
+    </AnimatePresence>
   );
 };
