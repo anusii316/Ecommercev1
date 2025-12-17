@@ -124,10 +124,7 @@ export const OrderHistory = () => {
                   exit={{ height: 0, opacity: 0 }}
                   className="border-t overflow-hidden"
                 >
-                  <div
-                    className="p-6 bg-gray-50"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="p-6 bg-gray-50">
                     <h4 className="font-semibold text-gray-900 mb-4">Order Items</h4>
                     <div className="space-y-3 mb-6">
                       {order.items.map((item, idx) => (
@@ -170,31 +167,47 @@ export const OrderHistory = () => {
                           </button>
                         ) : order.status === 'Delivered' ? (
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              e.nativeEvent.stopImmediatePropagation();
                               console.log('View Order Details clicked for order:', order.orderNumber, order);
                               setTrackingOrder(order);
                             }}
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                            }}
                             type="button"
-                            className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors"
+                            className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg cursor-pointer"
+                            style={{ pointerEvents: 'auto', zIndex: 10 }}
                           >
                             <Eye className="w-5 h-5" />
                             View Order Details
                           </button>
                         ) : (
                           <button
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              e.nativeEvent.stopImmediatePropagation();
                               console.log('Track Order clicked for order:', order.orderNumber, order);
                               setTrackingOrder(order);
                             }}
+                            onMouseDown={(e) => {
+                              e.stopPropagation();
+                            }}
                             type="button"
-                            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-semibold transition-colors"
+                            className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg cursor-pointer"
+                            style={{ pointerEvents: 'auto', zIndex: 10 }}
                           >
                             <MapPin className="w-5 h-5" />
                             Track Order
                           </button>
                         )}
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             console.log('Download Invoice clicked for order:', order.orderNumber);
                           }}
                           type="button"
@@ -202,8 +215,9 @@ export const OrderHistory = () => {
                           className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-semibold transition-colors ${
                             order.status === 'Cancelled'
                               ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                              : 'bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 cursor-pointer'
                           }`}
+                          style={{ pointerEvents: order.status === 'Cancelled' ? 'none' : 'auto' }}
                         >
                           <Download className="w-5 h-5" />
                           Download Invoice
@@ -211,12 +225,19 @@ export const OrderHistory = () => {
                       </div>
                       {(order.status === 'Processing' || order.status === 'Shipped') && (
                         <button
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            e.nativeEvent.stopImmediatePropagation();
                             console.log('Cancel Order clicked for order:', order.orderNumber, order);
                             setCancellingOrder(order);
                           }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                          }}
                           type="button"
-                          className="w-full flex items-center justify-center gap-2 bg-white hover:bg-red-50 text-red-600 border-2 border-red-600 py-3 px-4 rounded-lg font-semibold transition-colors"
+                          className="w-full flex items-center justify-center gap-2 bg-white hover:bg-red-50 active:bg-red-100 text-red-600 border-2 border-red-600 py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer"
+                          style={{ pointerEvents: 'auto', zIndex: 10 }}
                         >
                           <XCircle className="w-5 h-5" />
                           Cancel Order
