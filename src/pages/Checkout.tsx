@@ -122,13 +122,17 @@ export const Checkout = () => {
       return;
     }
 
-    if (paymentMethod === 'upi' && !useSavedPayment && !upiId.trim()) {
-      alert('Please enter your UPI ID');
-      return;
+    if (paymentMethod === 'upi') {
+      if (useSavedPayment && selectedSavedPayment) {
+      } else if (!upiId.trim()) {
+        alert('Please enter your UPI ID');
+        return;
+      }
     }
 
-    if (paymentMethod === 'card' && !useSavedPayment) {
-      if (!cardNumber.trim() || !cardExpiry.trim() || !cardCvv.trim() || !cardName.trim()) {
+    if (paymentMethod === 'card') {
+      if (useSavedPayment && selectedSavedPayment) {
+      } else if (!cardNumber.trim() || !cardExpiry.trim() || !cardCvv.trim() || !cardName.trim()) {
         alert('Please fill in all card details');
         return;
       }
@@ -728,8 +732,16 @@ export const Checkout = () => {
                           type="button"
                           onClick={() => {
                             setPaymentMethod('upi');
-                            setUseSavedPayment(false);
-                            setSelectedSavedPayment(null);
+                            const savedUpi = paymentMethods.find(pm => pm.type === 'upi' && pm.upiId);
+                            if (savedUpi) {
+                              setUseSavedPayment(true);
+                              setSelectedSavedPayment(savedUpi);
+                              setUpiId(savedUpi.upiId || '');
+                            } else {
+                              setUseSavedPayment(false);
+                              setSelectedSavedPayment(null);
+                              setUpiId('');
+                            }
                           }}
                           className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
                             paymentMethod === 'upi'
@@ -762,18 +774,70 @@ export const Checkout = () => {
                             exit={{ opacity: 0, height: 0 }}
                             className="mt-4 p-5 bg-blue-50 border-2 border-blue-200 rounded-lg"
                           >
-                            <div className="mb-4">
-                              <label className="block text-sm font-medium text-gray-700 mb-2">
-                                UPI ID *
-                              </label>
-                              <input
-                                type="text"
-                                value={upiId}
-                                onChange={(e) => setUpiId(e.target.value)}
-                                placeholder="yourname@paytm"
-                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                              />
-                            </div>
+                            {paymentMethods.filter(pm => pm.type === 'upi' && pm.upiId).length > 0 && (
+                              <div className="mb-4">
+                                <h4 className="text-sm font-semibold text-gray-900 mb-3">Saved UPI IDs</h4>
+                                <div className="space-y-2 mb-4">
+                                  {paymentMethods.filter(pm => pm.type === 'upi' && pm.upiId).map((pm) => (
+                                    <button
+                                      key={pm.id}
+                                      type="button"
+                                      onClick={() => {
+                                        setUseSavedPayment(true);
+                                        setSelectedSavedPayment(pm);
+                                        setUpiId(pm.upiId || '');
+                                      }}
+                                      className={`w-full p-4 border-2 rounded-lg text-left transition-all ${
+                                        selectedSavedPayment?.id === pm.id
+                                          ? 'border-blue-600 bg-white shadow-md'
+                                          : 'border-gray-300 hover:border-blue-400 bg-white'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                                            <span className="text-white font-bold text-xs">UPI</span>
+                                          </div>
+                                          <div>
+                                            <p className="font-medium text-gray-900">{pm.upiId}</p>
+                                          </div>
+                                        </div>
+                                        {selectedSavedPayment?.id === pm.id && (
+                                          <Check className="w-5 h-5 text-blue-600" />
+                                        )}
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setUseSavedPayment(false);
+                                    setSelectedSavedPayment(null);
+                                    setUpiId('');
+                                  }}
+                                  className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                                >
+                                  + Use a different UPI ID
+                                </button>
+                              </div>
+                            )}
+
+                            {(!useSavedPayment || paymentMethods.filter(pm => pm.type === 'upi' && pm.upiId).length === 0) && (
+                              <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                  UPI ID *
+                                </label>
+                                <input
+                                  type="text"
+                                  value={upiId}
+                                  onChange={(e) => setUpiId(e.target.value)}
+                                  placeholder="yourname@paytm"
+                                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                />
+                              </div>
+                            )}
+
                             <div className="bg-blue-100 border border-blue-300 rounded-lg p-3">
                               <p className="text-sm text-blue-900">
                                 You will be redirected to your UPI app to complete payment.
@@ -790,8 +854,14 @@ export const Checkout = () => {
                           type="button"
                           onClick={() => {
                             setPaymentMethod('card');
-                            setUseSavedPayment(false);
-                            setSelectedSavedPayment(null);
+                            const savedCard = paymentMethods.find(pm => pm.type === 'card');
+                            if (savedCard) {
+                              setUseSavedPayment(true);
+                              setSelectedSavedPayment(savedCard);
+                            } else {
+                              setUseSavedPayment(false);
+                              setSelectedSavedPayment(null);
+                            }
                           }}
                           className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
                             paymentMethod === 'card'

@@ -37,7 +37,7 @@ export interface SavedAddress {
 
 export interface PaymentMethod {
   id: string;
-  type: 'card' | 'paypal' | 'upi' | 'wallet';
+  type: 'card' | 'upi';
   cardNumber?: string;
   cardHolder?: string;
   expiryDate?: string;
@@ -470,7 +470,8 @@ const mockPaymentMethods: PaymentMethod[] = [
   },
   {
     id: '2',
-    type: 'paypal',
+    type: 'upi',
+    upiId: 'john@paytm',
     isDefault: false,
   },
 ];
