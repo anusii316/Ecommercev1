@@ -9,14 +9,14 @@ import {
   Plus,
   Trash2,
   Check,
-  Eye,
   X,
-  XCircle,
+  ArrowRight,
+  Calendar,
+  ShoppingBag,
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useOrderStore, SavedAddress, PaymentMethod } from '../stores/orderStore';
 import { useToastStore } from '../stores/toastStore';
-import { CancelOrderModal } from '../components/CancelOrderModal';
 
 export const Account = () => {
   const navigate = useNavigate();
@@ -31,7 +31,6 @@ export const Account = () => {
     addPaymentMethod,
     removePaymentMethod,
     setDefaultPaymentMethod,
-    cancelOrder,
   } = useOrderStore();
   const { addToast } = useToastStore();
 
@@ -40,7 +39,6 @@ export const Account = () => {
   );
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [cancellingOrder, setCancellingOrder] = useState<any>(null);
   const [newAddress, setNewAddress] = useState({
     label: '',
     fullName: '',
@@ -101,14 +99,6 @@ export const Account = () => {
     addToast('Payment method added successfully', 'success');
     setShowPaymentModal(false);
     setNewPayment({ type: 'card', cardNumber: '', cardHolder: '', expiryDate: '', upiId: '' });
-  };
-
-  const handleCancelOrder = () => {
-    if (cancellingOrder) {
-      cancelOrder(cancellingOrder.id);
-      setCancellingOrder(null);
-      addToast('Order cancelled successfully', 'success');
-    }
   };
 
   useEffect(() => {
@@ -195,79 +185,95 @@ export const Account = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="space-y-6"
               >
-                {orders.map((order, index) => (
-                  <motion.div
-                    key={order.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="border rounded-lg p-6 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="text-xl font-bold text-gray-900">
-                            Order #{order.orderNumber}
-                          </h3>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              statusColors[order.status]
-                            }`}
-                          >
-                            {order.status}
-                          </span>
-                        </div>
-                        <p className="text-gray-600">Placed on {order.date}</p>
-                        <p className="text-sm text-gray-500 mt-1">
-                          {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-blue-600">
-                          ₹{order.total.toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      {order.items.map((item) => (
-                        <div key={item.id} className="flex items-center gap-4">
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                            className="w-16 h-16 object-cover rounded"
-                          />
-                          <div className="flex-1">
-                            <h4 className="font-medium text-gray-900">{item.name}</h4>
-                            <p className="text-sm text-gray-600">Qty: {item.quantity}</p>
+                {orders.length === 0 ? (
+                  <div className="text-center py-12">
+                    <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No orders yet</h3>
+                    <p className="text-gray-600 mb-6">Start shopping to see your orders here</p>
+                    <button
+                      onClick={() => navigate('/shop')}
+                      className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg font-semibold transition-colors"
+                    >
+                      Browse Products
+                    </button>
+                  </div>
+                ) : (
+                  orders.map((order, index) => (
+                    <motion.div
+                      key={order.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="border rounded-lg overflow-hidden hover:shadow-md transition-shadow"
+                    >
+                      <div className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-start gap-4 flex-1">
+                            <div className="p-3 bg-blue-50 rounded-lg flex-shrink-0">
+                              <Package className="w-6 h-6 text-blue-600" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-xl font-bold text-gray-900 mb-1">
+                                Order #{order.orderNumber}
+                              </h3>
+                              <div className="flex items-center gap-2 text-gray-600 mb-2">
+                                <Calendar className="w-4 h-4" />
+                                <p className="text-sm">Placed on {order.date}</p>
+                              </div>
+                              <div className="flex items-center gap-2 text-gray-600">
+                                <ShoppingBag className="w-4 h-4" />
+                                <span className="text-sm">
+                                  {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
+                                </span>
+                              </div>
+                            </div>
                           </div>
-                          <span className="font-semibold text-gray-900">
-                            ₹{item.price.toFixed(2)}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
 
-                    <div className="mt-4 space-y-3">
-                      <button
-                        onClick={() => navigate(`/product/${order.items[0].id}`)}
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
-                      >
-                        <Eye className="w-4 h-4 inline mr-2" />
-                        View Products
-                      </button>
-                      {(order.status === 'Processing' || order.status === 'Shipped') && (
+                          <div className="text-right flex-shrink-0 ml-4">
+                            <span
+                              className={`inline-block px-3 py-1 rounded-full text-xs font-semibold mb-2 ${
+                                statusColors[order.status]
+                              }`}
+                            >
+                              {order.status}
+                            </span>
+                            <p className="text-2xl font-bold text-blue-600">
+                              ₹{order.total.toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+
+                        {order.items.length > 0 && (
+                          <div className="flex items-center gap-3 mb-4 pb-4 border-b overflow-x-auto">
+                            {order.items.slice(0, 3).map((item, idx) => (
+                              <img
+                                key={idx}
+                                src={item.image}
+                                alt={item.name}
+                                className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
+                              />
+                            ))}
+                            {order.items.length > 3 && (
+                              <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <span className="text-sm font-semibold text-gray-600">
+                                  +{order.items.length - 3}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         <button
-                          onClick={() => setCancellingOrder(order)}
-                          className="w-full bg-white hover:bg-red-50 active:bg-red-100 text-red-600 border-2 border-red-600 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                          onClick={() => navigate(`/dashboard/orders/${order.id}`)}
+                          className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-semibold transition-colors"
                         >
-                          <XCircle className="w-4 h-4" />
-                          Cancel Order
+                          View Order Details
+                          <ArrowRight className="w-5 h-5" />
                         </button>
-                      )}
-                    </div>
-                  </motion.div>
-                ))}
+                      </div>
+                    </motion.div>
+                  ))
+                )}
               </motion.div>
             )}
 
@@ -700,15 +706,6 @@ export const Account = () => {
               </div>
             </motion.div>
           </motion.div>
-        )}
-
-        {cancellingOrder && (
-          <CancelOrderModal
-            isOpen={true}
-            onClose={() => setCancellingOrder(null)}
-            onConfirm={handleCancelOrder}
-            orderNumber={cancellingOrder.orderNumber}
-          />
         )}
       </AnimatePresence>
     </div>
