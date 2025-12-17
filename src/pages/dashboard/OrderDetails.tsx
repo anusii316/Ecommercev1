@@ -260,7 +260,9 @@ export const OrderDetails = () => {
                   <p className="text-sm font-medium text-gray-900 mb-1">
                     Shipping Address
                   </p>
-                  <p className="text-sm text-gray-600">{order.shippingAddress}</p>
+                  <p className="text-sm text-gray-600">
+                    {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+                  </p>
                 </div>
               </div>
 

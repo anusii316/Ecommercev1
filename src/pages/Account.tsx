@@ -219,7 +219,7 @@ export const Account = () => {
                         </div>
                         <p className="text-gray-600">Placed on {order.date}</p>
                         <p className="text-sm text-gray-500 mt-1">
-                          {order.shippingAddress}
+                          {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
                         </p>
                       </div>
                       <div className="text-right">

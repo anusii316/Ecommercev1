@@ -134,7 +134,13 @@ export const generateUserOrders = (userId: string) => {
       total: Math.round(total * 100) / 100,
       status: statuses[statusIndex],
       items,
-      shippingAddress: `${address.street}, ${address.city}, ${address.state} ${address.zip}`,
+      shippingAddress: {
+        street: address.street,
+        city: address.city,
+        state: address.state,
+        zipCode: address.zip,
+        country: 'India',
+      },
     });
   }
 

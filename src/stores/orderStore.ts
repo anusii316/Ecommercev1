@@ -21,7 +21,13 @@ export interface Order {
   total: number;
   status: 'Processing' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Cancelled';
   items: OrderItem[];
-  shippingAddress: string;
+  shippingAddress: {
+    street: string;
+    city: string;
+    state: string;
+    zipCode: string;
+    country: string;
+  };
   paymentMethod?: string;
   paymentStatus?: string;
 }
@@ -39,7 +45,7 @@ export interface SavedAddress {
 
 export interface PaymentMethod {
   id: string;
-  type: 'card' | 'upi';
+  type: 'card' | 'upi' | 'paypal';
   cardNumber?: string;
   cardHolder?: string;
   expiryDate?: string;
@@ -81,7 +87,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '2',
@@ -105,7 +117,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '3',
@@ -122,7 +140,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '3b',
@@ -139,7 +163,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '456 Oak Ave, Los Angeles, CA 90001',
+    shippingAddress: {
+      street: '456 Oak Ave',
+      city: 'Los Angeles',
+      state: 'CA',
+      zipCode: '90001',
+      country: 'India',
+    },
   },
   {
     id: '4',
@@ -156,7 +186,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '5',
@@ -173,7 +209,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '6',
@@ -190,7 +232,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '456 Oak Ave, Los Angeles, CA 90001',
+    shippingAddress: {
+      street: '456 Oak Ave',
+      city: 'Los Angeles',
+      state: 'CA',
+      zipCode: '90001',
+      country: 'India',
+    },
   },
   {
     id: '7',
@@ -207,7 +255,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '8',
@@ -224,7 +278,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1558089687-f282ffcbc126?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '9',
@@ -248,7 +308,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1580480055273-228ff5388ef8?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '456 Oak Ave, Los Angeles, CA 90001',
+    shippingAddress: {
+      street: '456 Oak Ave',
+      city: 'Los Angeles',
+      state: 'CA',
+      zipCode: '90001',
+      country: 'India',
+    },
   },
   {
     id: '10',
@@ -265,7 +331,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1558317374-067fb5f30001?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '11',
@@ -282,7 +354,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '12',
@@ -299,7 +377,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1601925260368-ae2f83cf8b7f?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '13',
@@ -316,7 +400,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1517668808822-9ebb02f2a0e6?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '456 Oak Ave, Los Angeles, CA 90001',
+    shippingAddress: {
+      street: '456 Oak Ave',
+      city: 'Los Angeles',
+      state: 'CA',
+      zipCode: '90001',
+      country: 'India',
+    },
   },
   {
     id: '14',
@@ -333,7 +423,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '15',
@@ -350,7 +446,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1558002038-1055907df827?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '16',
@@ -367,7 +469,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '17',
@@ -384,7 +492,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '456 Oak Ave, Los Angeles, CA 90001',
+    shippingAddress: {
+      street: '456 Oak Ave',
+      city: 'Los Angeles',
+      state: 'CA',
+      zipCode: '90001',
+      country: 'India',
+    },
   },
   {
     id: '18',
@@ -401,7 +515,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '19',
@@ -418,7 +538,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
   {
     id: '20',
@@ -435,7 +561,13 @@ const mockOrders: Order[] = [
         image: 'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=200&h=200&fit=crop',
       },
     ],
-    shippingAddress: '123 Main St, New York, NY 10001',
+    shippingAddress: {
+      street: '123 Main St',
+      city: 'New York',
+      state: 'NY',
+      zipCode: '10001',
+      country: 'India',
+    },
   },
 ];
 
@@ -564,17 +696,17 @@ export const useOrderStore = create<OrderState>()(
         let userPayments = loadUserPayments(userId);
 
         if (userOrders.length === 0) {
-          userOrders = generateUserOrders(userId, userName);
+          userOrders = generateUserOrders(userId);
           saveUserOrders(userId, userOrders);
         }
 
         if (userAddresses.length === 0) {
-          userAddresses = generateUserAddresses(userName);
+          userAddresses = generateUserAddresses(userId, userName);
           saveUserAddresses(userId, userAddresses);
         }
 
         if (userPayments.length === 0) {
-          userPayments = generateUserPaymentMethods();
+          userPayments = generateUserPaymentMethods(userId, userName);
           saveUserPayments(userId, userPayments);
         }
 

@@ -154,10 +154,6 @@ export const Checkout = () => {
       const orderNumber = `NX${Date.now().toString().slice(-8)}`;
       const orderDate = new Date().toISOString().split('T')[0];
 
-      const shippingAddressStr = shippingData
-        ? `${shippingData.address}, ${shippingData.city}, ${shippingData.state} ${shippingData.zipCode}`
-        : 'Address not provided';
-
       const newOrder = {
         id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         orderNumber,
@@ -171,7 +167,13 @@ export const Checkout = () => {
           quantity: item.quantity,
           image: item.image,
         })),
-        shippingAddress: shippingAddressStr,
+        shippingAddress: {
+          street: shippingData?.address || 'Address not provided',
+          city: shippingData?.city || '',
+          state: shippingData?.state || '',
+          zipCode: shippingData?.zipCode || '',
+          country: 'India',
+        },
         paymentMethod,
         paymentStatus: paymentMethod === 'cod' ? 'Pending (COD)' : 'Paid (Mock)',
       };
