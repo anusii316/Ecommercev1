@@ -32,6 +32,17 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     clearError();
   }, [isLogin, clearError]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     let success = false;
@@ -78,15 +89,17 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998] flex items-center justify-center"
             onClick={onClose}
           />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl p-8 w-full max-w-md z-50 shadow-2xl"
-          >
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-white rounded-2xl p-6 sm:p-8 w-full max-w-md shadow-2xl pointer-events-auto max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-bold text-gray-900">
                 {isLogin ? 'Welcome Back' : 'Create Account'}
@@ -172,7 +185,8 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
                   : 'Already have an account? Sign in'}
               </button>
             </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>
