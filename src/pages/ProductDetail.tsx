@@ -139,7 +139,6 @@ export const ProductDetail = () => {
       },
       quantity
     );
-    addToast(`Added ${quantity} ${quantity > 1 ? 'items' : 'item'} to cart!`, 'success');
   };
 
   const handleToggleWishlist = () => {

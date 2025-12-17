@@ -8,7 +8,7 @@ import { useCartStore } from '../stores/cartStore';
 export const Shop = () => {
   const navigate = useNavigate();
   const { addItem } = useCartStore();
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 3000]);
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const categories = Array.from(new Set(products.map((p) => p.category)));
@@ -67,13 +67,13 @@ export const Shop = () => {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm text-gray-600 mb-2">
-                      Min: ${priceRange[0]}
+                      Min: ₹{priceRange[0]}
                     </label>
                     <input
                       type="range"
                       min="0"
-                      max="3000"
-                      step="50"
+                      max="20000"
+                      step="100"
                       value={priceRange[0]}
                       onChange={(e) =>
                         setPriceRange([Number(e.target.value), priceRange[1]])
@@ -83,13 +83,13 @@ export const Shop = () => {
                   </div>
                   <div>
                     <label className="block text-sm text-gray-600 mb-2">
-                      Max: ${priceRange[1]}
+                      Max: ₹{priceRange[1]}
                     </label>
                     <input
                       type="range"
                       min="0"
-                      max="3000"
-                      step="50"
+                      max="20000"
+                      step="100"
                       value={priceRange[1]}
                       onChange={(e) =>
                         setPriceRange([priceRange[0], Number(e.target.value)])
@@ -120,10 +120,10 @@ export const Shop = () => {
                 </div>
               </div>
 
-              {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 3000) && (
+              {(selectedCategories.length > 0 || priceRange[0] > 0 || priceRange[1] < 20000) && (
                 <button
                   onClick={() => {
-                    setPriceRange([0, 3000]);
+                    setPriceRange([0, 20000]);
                     setSelectedCategories([]);
                   }}
                   className="mt-6 w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors"
@@ -231,7 +231,7 @@ export const Shop = () => {
                 </p>
                 <button
                   onClick={() => {
-                    setPriceRange([0, 3000]);
+                    setPriceRange([0, 20000]);
                     setSelectedCategories([]);
                   }}
                   className="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors"
