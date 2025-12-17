@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User,
   Package,
@@ -10,9 +10,11 @@ import {
   Trash2,
   Check,
   Eye,
+  X,
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
-import { useOrderStore } from '../stores/orderStore';
+import { useOrderStore, SavedAddress, PaymentMethod } from '../stores/orderStore';
+import { useToastStore } from '../stores/toastStore';
 
 export const Account = () => {
   const navigate = useNavigate();
@@ -21,15 +23,84 @@ export const Account = () => {
     orders,
     savedAddresses,
     paymentMethods,
+    addAddress,
     removeAddress,
     setDefaultAddress,
+    addPaymentMethod,
     removePaymentMethod,
     setDefaultPaymentMethod,
   } = useOrderStore();
+  const { addToast } = useToastStore();
 
   const [activeTab, setActiveTab] = useState<'orders' | 'addresses' | 'payments'>(
     'orders'
   );
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [newAddress, setNewAddress] = useState({
+    label: '',
+    fullName: '',
+    address: '',
+    city: '',
+    state: '',
+    zipCode: '',
+    phone: '',
+  });
+  const [newPayment, setNewPayment] = useState({
+    type: 'card' as 'card' | 'upi' | 'wallet',
+    cardNumber: '',
+    cardHolder: '',
+    expiryDate: '',
+    upiId: '',
+  });
+
+  const handleAddAddress = () => {
+    if (!newAddress.fullName || !newAddress.address || !newAddress.city || !newAddress.state || !newAddress.zipCode || !newAddress.phone) {
+      addToast('Please fill all fields', 'error');
+      return;
+    }
+
+    const address: SavedAddress = {
+      id: `addr_${Date.now()}`,
+      label: newAddress.label || 'Home',
+      fullName: newAddress.fullName,
+      address: newAddress.address,
+      city: newAddress.city,
+      state: newAddress.state,
+      zipCode: newAddress.zipCode,
+      isDefault: savedAddresses.length === 0,
+    };
+
+    addAddress(address);
+    addToast('Address added successfully', 'success');
+    setShowAddressModal(false);
+    setNewAddress({ label: '', fullName: '', address: '', city: '', state: '', zipCode: '', phone: '' });
+  };
+
+  const handleAddPayment = () => {
+    if (newPayment.type === 'card' && (!newPayment.cardNumber || !newPayment.cardHolder || !newPayment.expiryDate)) {
+      addToast('Please fill all card details', 'error');
+      return;
+    }
+    if (newPayment.type === 'upi' && !newPayment.upiId) {
+      addToast('Please enter UPI ID', 'error');
+      return;
+    }
+
+    const payment: PaymentMethod = {
+      id: `pm_${Date.now()}`,
+      type: newPayment.type,
+      cardNumber: newPayment.type === 'card' ? `•••• •••• •••• ${newPayment.cardNumber.slice(-4)}` : undefined,
+      cardHolder: newPayment.type === 'card' ? newPayment.cardHolder : undefined,
+      expiryDate: newPayment.type === 'card' ? newPayment.expiryDate : undefined,
+      isDefault: paymentMethods.length === 0,
+    };
+
+    addPaymentMethod(payment);
+    addToast('Payment method added successfully', 'success');
+    setShowPaymentModal(false);
+    setNewPayment({ type: 'card', cardNumber: '', cardHolder: '', expiryDate: '', upiId: '' });
+  };
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -194,7 +265,10 @@ export const Account = () => {
                   <h2 className="text-2xl font-bold text-gray-900">
                     Your Addresses
                   </h2>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                  <button
+                    onClick={() => setShowAddressModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                  >
                     <Plus className="w-5 h-5" />
                     Add New Address
                   </button>
@@ -259,7 +333,10 @@ export const Account = () => {
                   <h2 className="text-2xl font-bold text-gray-900">
                     Payment Methods
                   </h2>
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors">
+                  <button
+                    onClick={() => setShowPaymentModal(true)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center gap-2 transition-colors"
+                  >
                     <Plus className="w-5 h-5" />
                     Add Payment Method
                   </button>
@@ -290,7 +367,7 @@ export const Account = () => {
                           </div>
                         )}
                         <h3 className="text-lg font-bold text-gray-900">
-                          {method.type === 'card' ? 'Credit Card' : 'PayPal'}
+                          {method.type === 'card' ? 'Credit/Debit Card' : method.type === 'upi' ? 'UPI' : 'Wallet'}
                         </h3>
                       </div>
 
@@ -306,9 +383,13 @@ export const Account = () => {
                             Expires {method.expiryDate}
                           </p>
                         </>
+                      ) : method.type === 'upi' ? (
+                        <p className="text-gray-600">
+                          UPI account linked
+                        </p>
                       ) : (
                         <p className="text-gray-600">
-                          PayPal account connected
+                          Wallet connected
                         </p>
                       )}
 
@@ -336,6 +417,289 @@ export const Account = () => {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {showAddressModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowAddressModal(false)}
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Add New Address</h3>
+                <button
+                  onClick={() => setShowAddressModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Address Label</label>
+                  <input
+                    type="text"
+                    value={newAddress.label}
+                    onChange={(e) => setNewAddress({ ...newAddress, label: e.target.value })}
+                    placeholder="Home, Work, etc."
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Full Name*</label>
+                  <input
+                    type="text"
+                    value={newAddress.fullName}
+                    onChange={(e) => setNewAddress({ ...newAddress, fullName: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">House No., Building, Street*</label>
+                  <input
+                    type="text"
+                    value={newAddress.address}
+                    onChange={(e) => setNewAddress({ ...newAddress, address: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">City*</label>
+                    <input
+                      type="text"
+                      value={newAddress.city}
+                      onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">State*</label>
+                    <select
+                      value={newAddress.state}
+                      onChange={(e) => setNewAddress({ ...newAddress, state: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select State</option>
+                      <option value="Andhra Pradesh">Andhra Pradesh</option>
+                      <option value="Karnataka">Karnataka</option>
+                      <option value="Maharashtra">Maharashtra</option>
+                      <option value="Tamil Nadu">Tamil Nadu</option>
+                      <option value="Delhi">Delhi</option>
+                      <option value="Gujarat">Gujarat</option>
+                      <option value="West Bengal">West Bengal</option>
+                      <option value="Telangana">Telangana</option>
+                      <option value="Rajasthan">Rajasthan</option>
+                      <option value="Kerala">Kerala</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">PIN Code*</label>
+                    <input
+                      type="text"
+                      value={newAddress.zipCode}
+                      onChange={(e) => setNewAddress({ ...newAddress, zipCode: e.target.value })}
+                      maxLength={6}
+                      placeholder="560001"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Phone Number*</label>
+                    <input
+                      type="tel"
+                      value={newAddress.phone}
+                      onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                      maxLength={10}
+                      placeholder="9876543210"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleAddAddress}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Add Address
+                  </button>
+                  <button
+                    onClick={() => setShowAddressModal(false)}
+                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {showPaymentModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowPaymentModal(false)}
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              onClick={(e) => e.stopPropagation()}
+              className="bg-white rounded-2xl p-8 max-w-xl w-full"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-900">Add Payment Method</h3>
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Payment Type</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    <button
+                      onClick={() => setNewPayment({ ...newPayment, type: 'card' })}
+                      className={`py-3 rounded-lg font-medium transition-colors ${
+                        newPayment.type === 'card'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Card
+                    </button>
+                    <button
+                      onClick={() => setNewPayment({ ...newPayment, type: 'upi' })}
+                      className={`py-3 rounded-lg font-medium transition-colors ${
+                        newPayment.type === 'upi'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      UPI
+                    </button>
+                    <button
+                      onClick={() => setNewPayment({ ...newPayment, type: 'wallet' })}
+                      className={`py-3 rounded-lg font-medium transition-colors ${
+                        newPayment.type === 'wallet'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                    >
+                      Wallet
+                    </button>
+                  </div>
+                </div>
+
+                {newPayment.type === 'card' && (
+                  <>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Card Number*</label>
+                      <input
+                        type="text"
+                        value={newPayment.cardNumber}
+                        onChange={(e) => setNewPayment({ ...newPayment, cardNumber: e.target.value })}
+                        maxLength={16}
+                        placeholder="1234 5678 9012 3456"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Cardholder Name*</label>
+                      <input
+                        type="text"
+                        value={newPayment.cardHolder}
+                        onChange={(e) => setNewPayment({ ...newPayment, cardHolder: e.target.value })}
+                        placeholder="Name on card"
+                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Expiry Date*</label>
+                        <input
+                          type="text"
+                          value={newPayment.expiryDate}
+                          onChange={(e) => setNewPayment({ ...newPayment, expiryDate: e.target.value })}
+                          placeholder="MM/YY"
+                          maxLength={5}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">CVV*</label>
+                        <input
+                          type="text"
+                          maxLength={3}
+                          placeholder="123"
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {newPayment.type === 'upi' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">UPI ID*</label>
+                    <input
+                      type="text"
+                      value={newPayment.upiId}
+                      onChange={(e) => setNewPayment({ ...newPayment, upiId: e.target.value })}
+                      placeholder="yourname@upi"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                  </div>
+                )}
+
+                {newPayment.type === 'wallet' && (
+                  <div className="text-center py-4 text-gray-600">
+                    Wallet will be linked during checkout
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-4">
+                  <button
+                    onClick={handleAddPayment}
+                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Add Payment Method
+                  </button>
+                  <button
+                    onClick={() => setShowPaymentModal(false)}
+                    className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

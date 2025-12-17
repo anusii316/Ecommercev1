@@ -458,8 +458,12 @@ const mockPaymentMethods: PaymentMethod[] = [
 ];
 
 const USER_ORDERS_KEY = 'nexus-user-orders';
+const USER_ADDRESSES_KEY = 'nexus-user-addresses';
+const USER_PAYMENTS_KEY = 'nexus-user-payments';
 
 const getUserOrdersKey = (userId: string) => `${USER_ORDERS_KEY}_${userId}`;
+const getUserAddressesKey = (userId: string) => `${USER_ADDRESSES_KEY}_${userId}`;
+const getUserPaymentsKey = (userId: string) => `${USER_PAYMENTS_KEY}_${userId}`;
 
 const loadUserOrders = (userId: string): Order[] => {
   try {
@@ -481,6 +485,46 @@ const saveUserOrders = (userId: string, orders: Order[]) => {
   }
 };
 
+const loadUserAddresses = (userId: string): SavedAddress[] => {
+  try {
+    const stored = localStorage.getItem(getUserAddressesKey(userId));
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch {
+    return [];
+  }
+  return [];
+};
+
+const saveUserAddresses = (userId: string, addresses: SavedAddress[]) => {
+  try {
+    localStorage.setItem(getUserAddressesKey(userId), JSON.stringify(addresses));
+  } catch {
+    //
+  }
+};
+
+const loadUserPayments = (userId: string): PaymentMethod[] => {
+  try {
+    const stored = localStorage.getItem(getUserPaymentsKey(userId));
+    if (stored) {
+      return JSON.parse(stored);
+    }
+  } catch {
+    return [];
+  }
+  return [];
+};
+
+const saveUserPayments = (userId: string, payments: PaymentMethod[]) => {
+  try {
+    localStorage.setItem(getUserPaymentsKey(userId), JSON.stringify(payments));
+  } catch {
+    //
+  }
+};
+
 export const useOrderStore = create<OrderState>()(
   persist(
     (set, get) => ({
@@ -494,12 +538,14 @@ export const useOrderStore = create<OrderState>()(
         }
 
         const userOrders = loadUserOrders(userId);
+        const userAddresses = loadUserAddresses(userId);
+        const userPayments = loadUserPayments(userId);
 
         set({
           currentUserId: userId,
           orders: userOrders,
-          savedAddresses: [],
-          paymentMethods: [],
+          savedAddresses: userAddresses,
+          paymentMethods: userPayments,
         });
       },
       addOrder: (order) => {
@@ -513,43 +559,61 @@ export const useOrderStore = create<OrderState>()(
         return get().orders.find((order) => order.id === id);
       },
       addAddress: (address) => {
-        set({ savedAddresses: [...get().savedAddresses, address] });
+        const newAddresses = [...get().savedAddresses, address];
+        set({ savedAddresses: newAddresses });
+        if (get().currentUserId) {
+          saveUserAddresses(get().currentUserId!, newAddresses);
+        }
       },
       updateAddress: (id, updatedAddress) => {
-        set({
-          savedAddresses: get().savedAddresses.map((addr) =>
-            addr.id === id ? { ...addr, ...updatedAddress } : addr
-          ),
-        });
+        const newAddresses = get().savedAddresses.map((addr) =>
+          addr.id === id ? { ...addr, ...updatedAddress } : addr
+        );
+        set({ savedAddresses: newAddresses });
+        if (get().currentUserId) {
+          saveUserAddresses(get().currentUserId!, newAddresses);
+        }
       },
       removeAddress: (id) => {
-        set({
-          savedAddresses: get().savedAddresses.filter((addr) => addr.id !== id),
-        });
+        const newAddresses = get().savedAddresses.filter((addr) => addr.id !== id);
+        set({ savedAddresses: newAddresses });
+        if (get().currentUserId) {
+          saveUserAddresses(get().currentUserId!, newAddresses);
+        }
       },
       setDefaultAddress: (id) => {
-        set({
-          savedAddresses: get().savedAddresses.map((addr) => ({
-            ...addr,
-            isDefault: addr.id === id,
-          })),
-        });
+        const newAddresses = get().savedAddresses.map((addr) => ({
+          ...addr,
+          isDefault: addr.id === id,
+        }));
+        set({ savedAddresses: newAddresses });
+        if (get().currentUserId) {
+          saveUserAddresses(get().currentUserId!, newAddresses);
+        }
       },
       addPaymentMethod: (method) => {
-        set({ paymentMethods: [...get().paymentMethods, method] });
+        const newPayments = [...get().paymentMethods, method];
+        set({ paymentMethods: newPayments });
+        if (get().currentUserId) {
+          saveUserPayments(get().currentUserId!, newPayments);
+        }
       },
       removePaymentMethod: (id) => {
-        set({
-          paymentMethods: get().paymentMethods.filter((pm) => pm.id !== id),
-        });
+        const newPayments = get().paymentMethods.filter((pm) => pm.id !== id);
+        set({ paymentMethods: newPayments });
+        if (get().currentUserId) {
+          saveUserPayments(get().currentUserId!, newPayments);
+        }
       },
       setDefaultPaymentMethod: (id) => {
-        set({
-          paymentMethods: get().paymentMethods.map((pm) => ({
-            ...pm,
-            isDefault: pm.id === id,
-          })),
-        });
+        const newPayments = get().paymentMethods.map((pm) => ({
+          ...pm,
+          isDefault: pm.id === id,
+        }));
+        set({ paymentMethods: newPayments });
+        if (get().currentUserId) {
+          saveUserPayments(get().currentUserId!, newPayments);
+        }
       },
     }),
     {
