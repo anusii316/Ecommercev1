@@ -284,37 +284,56 @@ export const OrderDetails = () => {
             transition={{ delay: 0.2 }}
             className="space-y-3"
           >
-            {order.status === 'Cancelled' || !order.orderNumber ? (
+            {order.status === 'Cancelled' ? (
               <button
                 disabled
-                className="w-full bg-gray-300 text-gray-500 py-4 rounded-lg font-semibold cursor-not-allowed text-lg"
+                type="button"
+                className="w-full bg-gray-300 text-gray-500 py-4 px-4 rounded-lg font-semibold cursor-not-allowed text-lg"
               >
-                {order.status === 'Cancelled' ? 'Order Cancelled' : 'Order Unavailable'}
+                Order Cancelled
               </button>
             ) : order.status === 'Delivered' ? (
               <button
-                onClick={() => setIsTrackingModalOpen(true)}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('View Order Details clicked');
+                  setIsTrackingModalOpen(true);
+                }}
+                type="button"
+                className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
               >
                 <Eye className="w-5 h-5" />
                 View Order Details
               </button>
             ) : (
               <button
-                onClick={() => setIsTrackingModalOpen(true)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('Track Order clicked');
+                  setIsTrackingModalOpen(true);
+                }}
+                type="button"
+                className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
               >
                 <MapPin className="w-5 h-5" />
                 Track Order
               </button>
             )}
             <button
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('Download Invoice clicked');
+              }}
+              type="button"
               disabled={order.status === 'Cancelled'}
-              className={`w-full py-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 ${
+              className={`w-full py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 ${
                 order.status === 'Cancelled'
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                  : 'bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 cursor-pointer'
               }`}
+              style={{ pointerEvents: order.status === 'Cancelled' ? 'none' : 'auto' }}
             >
               <Download className="w-5 h-5" />
               Download Invoice

@@ -72,26 +72,37 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
   const trackingSteps = getTrackingSteps();
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isOpen && (
         <>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 z-50"
-            onClick={onClose}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 bg-black bg-opacity-60 z-[100]"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onClose();
+            }}
+            style={{ pointerEvents: 'auto' }}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4"
-            onClick={onClose}
+            transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 30 }}
+            className="fixed inset-0 z-[101] flex items-center justify-center p-4"
+            style={{ pointerEvents: 'none' }}
           >
             <div
               className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              style={{ pointerEvents: 'auto' }}
             >
               <div className="sticky top-0 bg-white border-b px-6 py-4 flex items-center justify-between">
                 <div>
@@ -101,8 +112,15 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
                   <p className="text-sm text-gray-500">Track your order status</p>
                 </div>
                 <button
-                  onClick={onClose}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('Close modal clicked');
+                    onClose();
+                  }}
+                  type="button"
+                  className="p-2 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors cursor-pointer"
+                  style={{ pointerEvents: 'auto' }}
                 >
                   <X className="w-6 h-6 text-gray-600" />
                 </button>
