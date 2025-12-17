@@ -143,13 +143,13 @@ export const OrderHistory = () => {
                     </div>
 
                     <div className="flex gap-3">
-                      {order.status === 'Cancelled' ? (
+                      {order.status === 'Cancelled' || !order || !order.orderNumber ? (
                         <button
                           disabled
                           className="flex-1 flex items-center justify-center gap-2 bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed"
                         >
                           <Package className="w-5 h-5" />
-                          Order Cancelled
+                          {order.status === 'Cancelled' ? 'Order Cancelled' : 'Unavailable'}
                         </button>
                       ) : order.status === 'Delivered' ? (
                         <button
@@ -157,7 +157,7 @@ export const OrderHistory = () => {
                             e.stopPropagation();
                             setTrackingOrder(order);
                           }}
-                          className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                          className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
                         >
                           <Eye className="w-5 h-5" />
                           View Order Details
@@ -168,7 +168,7 @@ export const OrderHistory = () => {
                             e.stopPropagation();
                             setTrackingOrder(order);
                           }}
-                          className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                          className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg"
                         >
                           <MapPin className="w-5 h-5" />
                           Track Order
@@ -176,7 +176,12 @@ export const OrderHistory = () => {
                       )}
                       <button
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
+                        disabled={order.status === 'Cancelled'}
+                        className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg font-semibold transition-colors ${
+                          order.status === 'Cancelled'
+                            ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                            : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                        }`}
                       >
                         <Download className="w-5 h-5" />
                         Download Invoice

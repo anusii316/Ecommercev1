@@ -109,15 +109,27 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
               </div>
 
               <div className="p-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className={`border-2 rounded-xl p-5 mb-6 ${
+                  order.status === 'Delivered'
+                    ? 'bg-green-50 border-green-200'
+                    : order.status === 'Cancelled'
+                    ? 'bg-red-50 border-red-200'
+                    : 'bg-blue-50 border-blue-200'
+                }`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600 mb-1">Current Status</p>
-                      <p className="text-xl font-bold text-blue-600">{order.status}</p>
+                      <p className="text-sm text-gray-600 mb-1 font-medium">Current Status</p>
+                      <p className={`text-2xl font-bold ${
+                        order.status === 'Delivered'
+                          ? 'text-green-600'
+                          : order.status === 'Cancelled'
+                          ? 'text-red-600'
+                          : 'text-blue-600'
+                      }`}>{order.status}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm text-gray-600 mb-1">Total Amount</p>
-                      <p className="text-xl font-bold text-gray-900">₹{order.total.toFixed(2)}</p>
+                      <p className="text-sm text-gray-600 mb-1 font-medium">Total Amount</p>
+                      <p className="text-2xl font-bold text-gray-900">₹{order.total.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>
@@ -135,50 +147,58 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
                           initial={{ opacity: 0, x: -20 }}
                           animate={{ opacity: 1, x: 0 }}
                           transition={{ delay: index * 0.1 }}
-                          className="relative flex gap-4 pb-8"
+                          className={`relative flex gap-4 pb-8 ${
+                            step.status === 'current' ? 'bg-blue-50 -mx-4 px-4 py-3 rounded-lg' : ''
+                          }`}
                         >
                           {!isLast && (
                             <div
-                              className={`absolute left-5 top-12 w-0.5 h-full ${
-                                step.status === 'completed' ? 'bg-green-500' :
-                                step.status === 'current' ? 'bg-blue-500' :
-                                step.status === 'cancelled' ? 'bg-red-300' : 'bg-gray-300'
+                              className={`absolute top-12 w-1 h-full ${
+                                step.status === 'completed' ? 'bg-green-500 left-5' :
+                                step.status === 'current' ? 'bg-blue-500 left-5' :
+                                step.status === 'cancelled' ? 'bg-red-300 left-5' : 'bg-gray-300 left-5'
                               }`}
                             />
                           )}
 
                           <div
-                            className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                            className={`flex-shrink-0 rounded-full flex items-center justify-center ${
                               step.status === 'completed'
-                                ? 'bg-green-500 text-white'
+                                ? 'bg-green-500 text-white w-11 h-11 shadow-md'
                                 : step.status === 'current'
-                                ? 'bg-blue-600 text-white animate-pulse'
+                                ? 'bg-blue-600 text-white w-12 h-12 animate-pulse shadow-lg'
                                 : step.status === 'cancelled'
-                                ? 'bg-red-200 text-red-400'
-                                : 'bg-gray-200 text-gray-400'
+                                ? 'bg-red-200 text-red-400 w-10 h-10'
+                                : 'bg-gray-200 text-gray-400 w-10 h-10'
                             }`}
                           >
-                            <Icon className="w-5 h-5" />
+                            <Icon className={`${
+                              step.status === 'current' ? 'w-6 h-6' : 'w-5 h-5'
+                            }`} />
                           </div>
 
                           <div className="flex-1">
                             <h4
-                              className={`font-semibold mb-1 ${
-                                step.status === 'completed' || step.status === 'current'
-                                  ? 'text-gray-900'
-                                  : 'text-gray-400'
+                              className={`mb-1 ${
+                                step.status === 'current'
+                                  ? 'text-gray-900 font-bold text-lg'
+                                  : step.status === 'completed'
+                                  ? 'text-gray-900 font-semibold'
+                                  : 'text-gray-400 font-medium'
                               }`}
                             >
                               {step.label}
                               {step.status === 'current' && (
-                                <span className="ml-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full font-medium">
-                                  Current
+                                <span className="ml-2 text-xs bg-blue-600 text-white px-3 py-1 rounded-full font-semibold">
+                                  CURRENT
                                 </span>
                               )}
                             </h4>
-                            <p className="text-sm text-gray-500">{step.description}</p>
+                            <p className={`text-sm ${
+                              step.status === 'current' ? 'text-gray-700 font-medium' : 'text-gray-500'
+                            }`}>{step.description}</p>
                             {step.date && (
-                              <p className="text-xs text-gray-400 mt-1">{step.date}</p>
+                              <p className="text-xs text-gray-400 mt-1 font-medium">{step.date}</p>
                             )}
                           </div>
                         </motion.div>
