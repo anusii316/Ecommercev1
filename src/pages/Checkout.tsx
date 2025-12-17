@@ -234,16 +234,24 @@ export const Checkout = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          ZIP Code *
+                          PIN Code *
                         </label>
                         <input
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={6}
                           {...registerShipping('zipCode', {
-                            required: 'ZIP code is required',
+                            required: 'PIN code is required',
                             pattern: {
-                              value: /^\d{5}$/,
-                              message: 'Invalid ZIP code',
+                              value: /^\d{6}$/,
+                              message: 'Invalid PIN code',
                             },
                           })}
+                          onKeyPress={(e) => {
+                            if (!/[0-9]/.test(e.key)) {
+                              e.preventDefault();
+                            }
+                          }}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                         {shippingErrors.zipCode && (
@@ -365,16 +373,24 @@ export const Checkout = () => {
 
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            ZIP Code *
+                            PIN Code *
                           </label>
                           <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={6}
                             {...registerBilling('billingZipCode', {
-                              required: !sameAsShipping && 'ZIP code is required',
+                              required: !sameAsShipping && 'PIN code is required',
                               pattern: {
-                                value: /^\d{5}$/,
-                                message: 'Invalid ZIP code',
+                                value: /^\d{6}$/,
+                                message: 'Invalid PIN code',
                               },
                             })}
+                            onKeyPress={(e) => {
+                              if (!/[0-9]/.test(e.key)) {
+                                e.preventDefault();
+                              }
+                            }}
                             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                           />
                           {billingErrors.billingZipCode && (
