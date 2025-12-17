@@ -29,6 +29,7 @@ export const Home = () => {
   const [showModal, setShowModal] = useState(false);
   const [categoryScroll, setCategoryScroll] = useState(0);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
+  const [heroSlide, setHeroSlide] = useState(0);
   const [dealTimeLeft, setDealTimeLeft] = useState({
     hours: 12,
     minutes: 34,
@@ -109,6 +110,20 @@ export const Home = () => {
     });
   };
 
+  const scrollToDeals = () => {
+    const flashSaleSection = document.getElementById('flash-sale');
+    if (flashSaleSection) {
+      flashSaleSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const scrollToCategories = () => {
+    const categoriesSection = document.getElementById('categories');
+    if (categoriesSection) {
+      categoriesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <div className="min-h-screen">
       <motion.section
@@ -175,6 +190,7 @@ export const Home = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={scrollToDeals}
                 className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-2 border-white px-10 py-5 rounded-lg font-semibold text-xl flex items-center gap-3 mx-auto transition-colors"
               >
                 View Deals
@@ -186,9 +202,13 @@ export const Home = () => {
 
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2">
           {[0, 1, 2].map((i) => (
-            <div
+            <button
               key={i}
-              className="w-3 h-3 rounded-full bg-white/50 hover:bg-white transition-colors cursor-pointer"
+              onClick={() => setHeroSlide(i)}
+              className={`w-3 h-3 rounded-full transition-all ${
+                heroSlide === i ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/80'
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
             />
           ))}
         </div>
@@ -240,6 +260,7 @@ export const Home = () => {
       </motion.section>
 
       <motion.section
+        id="flash-sale"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -293,6 +314,7 @@ export const Home = () => {
       </motion.section>
 
       <motion.section
+        id="categories"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 1 }}
@@ -453,7 +475,10 @@ export const Home = () => {
                   placeholder="Enter your email"
                   className="flex-1 px-6 py-4 rounded-lg text-lg focus:ring-4 focus:ring-white/50 focus:outline-none"
                 />
-                <button className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg">
+                <button
+                  onClick={() => navigate('/shop')}
+                  className="bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg"
+                >
                   Get Discount
                 </button>
               </div>
@@ -498,7 +523,10 @@ export const Home = () => {
               <p className="text-xl mb-4">
                 Extra 30% OFF on all electronics - This weekend only!
               </p>
-              <button className="bg-white text-red-600 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors">
+              <button
+                onClick={() => navigate('/shop')}
+                className="bg-white text-red-600 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors"
+              >
                 Shop Electronics
               </button>
             </motion.div>
@@ -732,10 +760,16 @@ export const Home = () => {
                 first served!
               </p>
               <div className="flex gap-4">
-                <button className="bg-white text-green-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg">
+                <button
+                  onClick={() => navigate('/shop')}
+                  className="bg-white text-green-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg"
+                >
                   Shop Clearance
                 </button>
-                <button className="bg-white/10 backdrop-blur-md text-white border-2 border-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/20 transition-colors">
+                <button
+                  onClick={scrollToDeals}
+                  className="bg-white/10 backdrop-blur-md text-white border-2 border-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/20 transition-colors"
+                >
                   View All Deals
                 </button>
               </div>
