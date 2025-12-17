@@ -1,17 +1,20 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Package, ChevronDown, ChevronUp, Eye, Download } from 'lucide-react';
+import { Package, ChevronDown, ChevronUp, Eye, Download, MapPin } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
+import { OrderTrackingModal } from '../../components/OrderTrackingModal';
 
 export const OrderHistory = () => {
   const { orders } = useOrderStore();
   const navigate = useNavigate();
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [trackingOrder, setTrackingOrder] = useState<any>(null);
 
-  const statusColors = {
+  const statusColors: Record<string, string> = {
     Processing: 'bg-yellow-100 text-yellow-800',
     Shipped: 'bg-blue-100 text-blue-800',
+    'Out for Delivery': 'bg-cyan-100 text-cyan-800',
     Delivered: 'bg-green-100 text-green-800',
     Cancelled: 'bg-red-100 text-red-800',
   };
@@ -140,16 +143,37 @@ export const OrderHistory = () => {
                     </div>
 
                     <div className="flex gap-3">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/dashboard/orders/${order.id}`);
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                      >
-                        <Eye className="w-5 h-5" />
-                        View Details
-                      </button>
+                      {order.status === 'Cancelled' ? (
+                        <button
+                          disabled
+                          className="flex-1 flex items-center justify-center gap-2 bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed"
+                        >
+                          <Package className="w-5 h-5" />
+                          Order Cancelled
+                        </button>
+                      ) : order.status === 'Delivered' ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTrackingOrder(order);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                        >
+                          <Eye className="w-5 h-5" />
+                          View Order Details
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setTrackingOrder(order);
+                          }}
+                          className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                        >
+                          <MapPin className="w-5 h-5" />
+                          Track Order
+                        </button>
+                      )}
                       <button
                         onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-2 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
@@ -165,6 +189,14 @@ export const OrderHistory = () => {
           </motion.div>
         ))}
       </div>
+
+      {trackingOrder && (
+        <OrderTrackingModal
+          isOpen={true}
+          onClose={() => setTrackingOrder(null)}
+          order={trackingOrder}
+        />
+      )}
     </div>
   );
 };

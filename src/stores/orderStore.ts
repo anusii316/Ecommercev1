@@ -19,7 +19,7 @@ export interface Order {
   orderNumber: string;
   date: string;
   total: number;
-  status: 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  status: 'Processing' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Cancelled';
   items: OrderItem[];
   shippingAddress: string;
 }
@@ -107,6 +107,23 @@ const mockOrders: Order[] = [
   {
     id: '3',
     orderNumber: 'NX2024003',
+    date: '2024-12-07',
+    total: 399.99,
+    status: 'Out for Delivery',
+    items: [
+      {
+        id: '13',
+        name: 'Fitness Tracker Pro',
+        price: 399.99,
+        quantity: 1,
+        image: 'https://images.unsplash.com/photo-1575311373937-040b8e1fd5b6?w=200&h=200&fit=crop',
+      },
+    ],
+    shippingAddress: '123 Main St, New York, NY 10001',
+  },
+  {
+    id: '3b',
+    orderNumber: 'NX2024003B',
     date: '2024-12-05',
     total: 599.99,
     status: 'Processing',

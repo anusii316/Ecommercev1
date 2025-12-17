@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -10,11 +11,13 @@ import {
   DollarSign,
 } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
+import { OrderTrackingModal } from '../../components/OrderTrackingModal';
 
 export const OrderDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getOrderById } = useOrderStore();
+  const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
 
   const order = getOrderById(id!);
 
@@ -279,16 +282,25 @@ export const OrderDetails = () => {
             transition={{ delay: 0.2 }}
             className="space-y-3"
           >
-            {order.status === 'Delivered' ? (
-              <div className="w-full bg-green-50 border-2 border-green-500 text-green-700 py-3 rounded-lg font-semibold text-center">
-                Delivered on {order.date}
-              </div>
-            ) : order.status === 'Cancelled' ? (
-              <div className="w-full bg-red-50 border-2 border-red-500 text-red-700 py-3 rounded-lg font-semibold text-center">
+            {order.status === 'Cancelled' ? (
+              <button
+                disabled
+                className="w-full bg-gray-300 text-gray-500 py-3 rounded-lg font-semibold cursor-not-allowed"
+              >
                 Order Cancelled
-              </div>
+              </button>
+            ) : order.status === 'Delivered' ? (
+              <button
+                onClick={() => setIsTrackingModalOpen(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
+                View Order Details
+              </button>
             ) : (
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
+              <button
+                onClick={() => setIsTrackingModalOpen(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+              >
                 Track Order
               </button>
             )}
@@ -298,6 +310,12 @@ export const OrderDetails = () => {
           </motion.div>
         </div>
       </div>
+
+      <OrderTrackingModal
+        isOpen={isTrackingModalOpen}
+        onClose={() => setIsTrackingModalOpen(false)}
+        order={order}
+      />
     </div>
   );
 };
