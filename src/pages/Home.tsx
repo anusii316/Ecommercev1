@@ -26,6 +26,45 @@ import { Footer } from '../components/Footer';
 import { mockCategories } from '../data/mockCategories';
 import { mockTestimonials, brandLogos } from '../data/mockTestimonials';
 
+const heroSlides = [
+  {
+    id: 1,
+    image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=2000&h=1500',
+    video: 'https://static.videezy.com/system/resources/previews/000/043/938/original/200213_02.mp4',
+    badge: '🎉 MEGA SALE - UP TO 70% OFF',
+    title: 'Discover Top Deals at',
+    brandName: 'NexusMarket',
+    subtitle: 'Your ultimate destination for premium products at incredible prices.',
+    description: 'Discover thousands of items across all categories with fast shipping and secure checkout.',
+    primaryCta: { label: 'Shop Now', route: '/shop' },
+    secondaryCta: { label: 'Browse Categories', action: 'scrollToCategories' }
+  },
+  {
+    id: 2,
+    image: 'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=2000&h=1500',
+    video: 'https://static.videezy.com/system/resources/previews/000/043/938/original/200213_02.mp4',
+    badge: '⚡ FLASH DEALS - LIMITED TIME',
+    title: 'Electronics & Gadgets',
+    brandName: 'Up to 60% Off',
+    subtitle: 'Latest smartphones, laptops, and smart home devices.',
+    description: 'Premium electronics with warranty and fast delivery across India.',
+    primaryCta: { label: 'Shop Electronics', route: '/shop' },
+    secondaryCta: { label: 'View Deals', action: 'scrollToDeals' }
+  },
+  {
+    id: 3,
+    image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=2000&h=1500',
+    video: 'https://static.videezy.com/system/resources/previews/000/043/938/original/200213_02.mp4',
+    badge: '🛍️ NEW ARRIVALS',
+    title: 'Fashion & Lifestyle',
+    brandName: 'Trending Now',
+    subtitle: 'Explore the latest trends in clothing, accessories, and lifestyle products.',
+    description: 'Curated collections from top brands with free shipping on orders over ₹500.',
+    primaryCta: { label: 'Shop Fashion', route: '/shop' },
+    secondaryCta: { label: 'New Arrivals', route: '/shop' }
+  }
+];
+
 export const Home = () => {
   const navigate = useNavigate();
   const { products } = useProductsStore();
@@ -90,6 +129,14 @@ export const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeroSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 6000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   const newArrivals = products.filter((p) => p.isNew).slice(0, 15);
   const bestSellers = products.filter((p) => p.isBestSeller).slice(0, 15);
   const trending = products.filter((p) => p.isTrending).slice(0, 15);
@@ -120,6 +167,18 @@ export const Home = () => {
     }
   };
 
+  const handleCtaClick = (cta: { label: string; route?: string; action?: string }) => {
+    if (cta.route) {
+      navigate(cta.route);
+    } else if (cta.action === 'scrollToCategories') {
+      scrollToCategories();
+    } else if (cta.action === 'scrollToDeals') {
+      scrollToDeals();
+    }
+  };
+
+  const currentSlide = heroSlides[heroSlide];
+
   return (
     <div className="min-h-screen">
       <motion.section
@@ -128,130 +187,144 @@ export const Home = () => {
         transition={{ duration: 1 }}
         className="relative h-[90vh] overflow-hidden"
       >
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage:
-              'url(https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=2000&h=1500)',
-          }}
-        />
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="w-full h-screen object-cover"
-          src="https://static.videezy.com/system/resources/previews/000/043/938/original/200213_02.mp4"
-        >
-          Your browser does not support the video tag.
-        </video>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentSlide.id}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0"
+          >
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${currentSlide.image})`,
+              }}
+            />
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-screen object-cover"
+              src={currentSlide.video}
+            >
+              Your browser does not support the video tag.
+            </video>
+          </motion.div>
+        </AnimatePresence>
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/70" />
 
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="relative z-10 h-full flex items-center justify-center text-center px-4"
-        >
-          <div className="max-w-6xl w-full">
-            <motion.div
-              initial={{ scale: 0.9 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-              className="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-2 rounded-full font-bold mb-6 shadow-lg"
-            >
-              🎉 MEGA SALE - UP TO 70% OFF
-            </motion.div>
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
-              className="text-6xl md:text-8xl font-bold text-white mb-6 leading-tight drop-shadow-2xl"
-            >
-              Discover Top Deals at
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500">
-                NexusMarket
-              </span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1 }}
-              className="text-xl md:text-3xl text-white/95 mb-4 max-w-4xl mx-auto leading-relaxed drop-shadow-lg font-medium"
-            >
-              Your ultimate destination for premium products at incredible prices.
-            </motion.p>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.2 }}
-              className="text-lg md:text-xl text-white/85 mb-10 max-w-3xl mx-auto leading-relaxed drop-shadow-lg"
-            >
-              Discover thousands of items across all categories with fast shipping and secure checkout.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.4 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-10"
-            >
-              <motion.button
-                whileHover={{ scale: 1.08, boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/shop')}
-                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-12 py-6 rounded-xl font-bold text-2xl flex items-center gap-3 mx-auto transition-all shadow-2xl border-2 border-white/20"
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={`content-${currentSlide.id}`}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -30 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="relative z-10 h-full flex items-center justify-center text-center px-4"
+          >
+            <div className="max-w-6xl w-full">
+              <motion.div
+                initial={{ scale: 0.9 }}
+                animate={{ scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="inline-block bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-6 py-2 rounded-full font-bold mb-6 shadow-lg"
               >
-                Shop Now
-                <ArrowRight className="w-7 h-7" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.08, backgroundColor: 'rgba(255,255,255,0.25)' }}
-                whileTap={{ scale: 0.95 }}
-                onClick={scrollToCategories}
-                className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-2 border-white px-12 py-6 rounded-xl font-bold text-2xl flex items-center gap-3 mx-auto transition-all shadow-xl"
+                {currentSlide.badge}
+              </motion.div>
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                className="text-6xl md:text-8xl font-bold text-white mb-6 leading-tight drop-shadow-2xl"
               >
-                Browse Categories
-                <Tag className="w-7 h-7" />
-              </motion.button>
-            </motion.div>
+                {currentSlide.title}
+                <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500">
+                  {currentSlide.brandName}
+                </span>
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.8 }}
+                className="text-xl md:text-3xl text-white/95 mb-4 max-w-4xl mx-auto leading-relaxed drop-shadow-lg font-medium"
+              >
+                {currentSlide.subtitle}
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1 }}
+                className="text-lg md:text-xl text-white/85 mb-10 max-w-3xl mx-auto leading-relaxed drop-shadow-lg"
+              >
+                {currentSlide.description}
+              </motion.p>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.6 }}
-              className="flex flex-wrap justify-center gap-8 text-white"
-            >
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
-                <Truck className="w-6 h-6 text-blue-300" />
-                <div className="text-left">
-                  <div className="text-sm font-semibold">Free Shipping</div>
-                  <div className="text-xs text-white/80">On orders over ₹500</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
-                <Shield className="w-6 h-6 text-green-300" />
-                <div className="text-left">
-                  <div className="text-sm font-semibold">Secure Checkout</div>
-                  <div className="text-xs text-white/80">100% Protected</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
-                <Award className="w-6 h-6 text-yellow-300" />
-                <div className="text-left">
-                  <div className="text-sm font-semibold">Best Quality</div>
-                  <div className="text-xs text-white/80">Premium Products</div>
-                </div>
-              </div>
-            </motion.div>
-          </div>
-        </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.2 }}
+                className="flex flex-col sm:flex-row gap-4 justify-center mb-10"
+              >
+                <motion.button
+                  whileHover={{ scale: 1.08, boxShadow: '0 20px 40px rgba(0,0,0,0.3)' }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleCtaClick(currentSlide.primaryCta)}
+                  className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-12 py-6 rounded-xl font-bold text-2xl flex items-center gap-3 mx-auto transition-all shadow-2xl border-2 border-white/20"
+                >
+                  {currentSlide.primaryCta.label}
+                  <ArrowRight className="w-7 h-7" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.08, backgroundColor: 'rgba(255,255,255,0.25)' }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => handleCtaClick(currentSlide.secondaryCta)}
+                  className="bg-white/10 backdrop-blur-md hover:bg-white/20 text-white border-2 border-white px-12 py-6 rounded-xl font-bold text-2xl flex items-center gap-3 mx-auto transition-all shadow-xl"
+                >
+                  {currentSlide.secondaryCta.label}
+                  <Tag className="w-7 h-7" />
+                </motion.button>
+              </motion.div>
 
-        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2">
-          {[0, 1, 2].map((i) => (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 1.4 }}
+                className="flex flex-wrap justify-center gap-8 text-white"
+              >
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
+                  <Truck className="w-6 h-6 text-blue-300" />
+                  <div className="text-left">
+                    <div className="text-sm font-semibold">Free Shipping</div>
+                    <div className="text-xs text-white/80">On orders over ₹500</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
+                  <Shield className="w-6 h-6 text-green-300" />
+                  <div className="text-left">
+                    <div className="text-sm font-semibold">Secure Checkout</div>
+                    <div className="text-xs text-white/80">100% Protected</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full shadow-lg">
+                  <Award className="w-6 h-6 text-yellow-300" />
+                  <div className="text-left">
+                    <div className="text-sm font-semibold">Best Quality</div>
+                    <div className="text-xs text-white/80">Premium Products</div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+          {heroSlides.map((slide, i) => (
             <button
-              key={i}
+              key={slide.id}
               onClick={() => setHeroSlide(i)}
               className={`w-3 h-3 rounded-full transition-all ${
                 heroSlide === i ? 'bg-white w-8' : 'bg-white/50 hover:bg-white/80'
