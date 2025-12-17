@@ -11,12 +11,10 @@ import {
   Check,
   Eye,
   X,
-  XCircle,
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useOrderStore, SavedAddress, PaymentMethod } from '../stores/orderStore';
 import { useToastStore } from '../stores/toastStore';
-import { CancelOrderModal } from '../components/CancelOrderModal';
 
 export const Account = () => {
   const navigate = useNavigate();
@@ -31,7 +29,6 @@ export const Account = () => {
     addPaymentMethod,
     removePaymentMethod,
     setDefaultPaymentMethod,
-    cancelOrder,
   } = useOrderStore();
   const { addToast } = useToastStore();
 
@@ -40,7 +37,6 @@ export const Account = () => {
   );
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [cancellingOrder, setCancellingOrder] = useState<any>(null);
   const [newAddress, setNewAddress] = useState({
     label: '',
     fullName: '',
@@ -101,14 +97,6 @@ export const Account = () => {
     addToast('Payment method added successfully', 'success');
     setShowPaymentModal(false);
     setNewPayment({ type: 'card', cardNumber: '', cardHolder: '', expiryDate: '', upiId: '' });
-  };
-
-  const handleCancelOrder = () => {
-    if (cancellingOrder) {
-      cancelOrder(cancellingOrder.id);
-      setCancellingOrder(null);
-      addToast('Order cancelled successfully', 'success');
-    }
   };
 
   useEffect(() => {
@@ -248,28 +236,17 @@ export const Account = () => {
                       ))}
                     </div>
 
-                    <div className="mt-4 space-y-3">
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => navigate(`/product/${order.items[0].id}`)}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
-                        >
-                          <Eye className="w-4 h-4 inline mr-2" />
-                          View Products
-                        </button>
-                        <button className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors">
-                          Track Order
-                        </button>
-                      </div>
-                      {(order.status === 'Processing' || order.status === 'Shipped') && (
-                        <button
-                          onClick={() => setCancellingOrder(order)}
-                          className="w-full bg-white hover:bg-red-50 active:bg-red-100 text-red-600 border-2 border-red-600 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
-                        >
-                          <XCircle className="w-4 h-4" />
-                          Cancel Order
-                        </button>
-                      )}
+                    <div className="mt-4 flex gap-3">
+                      <button
+                        onClick={() => navigate(`/product/${order.items[0].id}`)}
+                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
+                      >
+                        <Eye className="w-4 h-4 inline mr-2" />
+                        View Products
+                      </button>
+                      <button className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors">
+                        Track Order
+                      </button>
                     </div>
                   </motion.div>
                 ))}
@@ -705,15 +682,6 @@ export const Account = () => {
               </div>
             </motion.div>
           </motion.div>
-        )}
-
-        {cancellingOrder && (
-          <CancelOrderModal
-            isOpen={true}
-            onClose={() => setCancellingOrder(null)}
-            onConfirm={handleCancelOrder}
-            orderNumber={cancellingOrder.orderNumber}
-          />
         )}
       </AnimatePresence>
     </div>
