@@ -272,23 +272,41 @@ export const Success = () => {
           >
             <div className="flex flex-col sm:flex-row gap-3">
               <button
-                onClick={() => navigate('/account')}
-                className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('Navigating to Order History');
+                  navigate('/dashboard/orders');
+                }}
+                type="button"
+                className="flex-1 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors shadow-md hover:shadow-lg cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
               >
                 <Package className="w-5 h-5" />
                 View Order History
               </button>
               <button
-                onClick={() => setShowTrackingModal(true)}
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  console.log('Opening Track Order modal');
+                  setShowTrackingModal(true);
+                }}
+                type="button"
+                className="flex-1 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 px-4 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors shadow-md hover:shadow-lg cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
               >
                 <Truck className="w-5 h-5" />
                 Track Order
               </button>
             </div>
             <button
-              onClick={() => navigate('/shop')}
-              className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('Navigating to Shop');
+                navigate('/shop');
+              }}
+              type="button"
+              className="w-full bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer"
+              style={{ pointerEvents: 'auto' }}
             >
               Continue Shopping
             </button>
@@ -296,31 +314,54 @@ export const Success = () => {
         </div>
       </motion.div>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {showTrackingModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowTrackingModal(false)}
-            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
-          >
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setShowTrackingModal(false);
+              }}
+              className="fixed inset-0 bg-black/70 z-[100]"
+              style={{ pointerEvents: 'auto' }}
+            />
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.9 }}
-              onClick={(e) => e.stopPropagation()}
-              className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+              transition={{ duration: 0.2, type: 'spring', stiffness: 300, damping: 30 }}
+              className="fixed inset-0 z-[101] flex items-center justify-center p-4"
+              style={{ pointerEvents: 'none' }}
             >
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-900">Track Order</h3>
-                <button
-                  onClick={() => setShowTrackingModal(false)}
-                  className="text-gray-400 hover:text-gray-600"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
+              <div
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+                style={{ pointerEvents: 'auto' }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-2xl font-bold text-gray-900">Track Order</h3>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Closing tracking modal');
+                      setShowTrackingModal(false);
+                    }}
+                    type="button"
+                    className="text-gray-400 hover:text-gray-600 active:text-gray-800 p-2 rounded-lg hover:bg-gray-100 active:bg-gray-200 transition-colors cursor-pointer"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
 
               <div className="mb-6">
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -412,16 +453,24 @@ export const Success = () => {
                 </p>
               </div>
 
-              <div className="mt-6">
-                <button
-                  onClick={() => setShowTrackingModal(false)}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                >
-                  Close
-                </button>
+                <div className="mt-6">
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('Closing tracking modal');
+                      setShowTrackingModal(false);
+                    }}
+                    type="button"
+                    className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors cursor-pointer"
+                    style={{ pointerEvents: 'auto' }}
+                  >
+                    Close
+                  </button>
+                </div>
               </div>
             </motion.div>
-          </motion.div>
+          </>
         )}
       </AnimatePresence>
     </div>
