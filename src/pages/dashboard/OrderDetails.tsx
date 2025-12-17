@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -9,17 +8,13 @@ import {
   MapPin,
   Calendar,
   DollarSign,
-  Eye,
-  Download,
 } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
-import { OrderTrackingModal } from '../../components/OrderTrackingModal';
 
 export const OrderDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { getOrderById } = useOrderStore();
-  const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
 
   const order = getOrderById(id!);
 
@@ -284,69 +279,25 @@ export const OrderDetails = () => {
             transition={{ delay: 0.2 }}
             className="space-y-3"
           >
-            {order.status === 'Cancelled' ? (
-              <button
-                disabled
-                type="button"
-                className="w-full bg-gray-300 text-gray-500 py-4 px-4 rounded-lg font-semibold cursor-not-allowed text-lg"
-              >
+            {order.status === 'Delivered' ? (
+              <div className="w-full bg-green-50 border-2 border-green-500 text-green-700 py-3 rounded-lg font-semibold text-center">
+                Delivered on {order.date}
+              </div>
+            ) : order.status === 'Cancelled' ? (
+              <div className="w-full bg-red-50 border-2 border-red-500 text-red-700 py-3 rounded-lg font-semibold text-center">
                 Order Cancelled
-              </button>
-            ) : order.status === 'Delivered' ? (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log('View Order Details clicked');
-                  setIsTrackingModalOpen(true);
-                }}
-                type="button"
-                className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto' }}
-              >
-                <Eye className="w-5 h-5" />
-                View Order Details
-              </button>
+              </div>
             ) : (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  console.log('Track Order clicked');
-                  setIsTrackingModalOpen(true);
-                }}
-                type="button"
-                className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto' }}
-              >
-                <MapPin className="w-5 h-5" />
+              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
                 Track Order
               </button>
             )}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                console.log('Download Invoice clicked');
-              }}
-              type="button"
-              disabled={order.status === 'Cancelled'}
-              className={`w-full py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 ${
-                order.status === 'Cancelled'
-                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 cursor-pointer'
-              }`}
-              style={{ pointerEvents: order.status === 'Cancelled' ? 'none' : 'auto' }}
-            >
-              <Download className="w-5 h-5" />
+            <button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors">
               Download Invoice
             </button>
           </motion.div>
         </div>
       </div>
-
-      <OrderTrackingModal
-        isOpen={isTrackingModalOpen}
-        onClose={() => setIsTrackingModalOpen(false)}
-        order={order}
-      />
     </div>
   );
 };
