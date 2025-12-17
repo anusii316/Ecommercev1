@@ -1,10 +1,43 @@
 import { motion } from 'framer-motion';
-import { CheckCircle, Home, Package } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { CheckCircle, Home, Package, CreditCard, Smartphone, Wallet } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Success = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const orderNumber = Math.random().toString(36).substring(2, 11).toUpperCase();
+
+  const { paymentMethod, paymentStatus, orderStatus } = location.state || {
+    paymentMethod: 'card',
+    paymentStatus: 'Paid (Mock)',
+    orderStatus: 'Placed'
+  };
+
+  const getPaymentIcon = () => {
+    switch (paymentMethod) {
+      case 'upi':
+        return <Smartphone className="w-5 h-5 text-blue-600" />;
+      case 'card':
+        return <CreditCard className="w-5 h-5 text-blue-600" />;
+      case 'cod':
+        return <Wallet className="w-5 h-5 text-green-600" />;
+      default:
+        return <CreditCard className="w-5 h-5 text-blue-600" />;
+    }
+  };
+
+  const getPaymentMethodName = () => {
+    switch (paymentMethod) {
+      case 'upi':
+        return 'UPI Payment';
+      case 'card':
+        return 'Credit/Debit Card';
+      case 'cod':
+        return 'Cash on Delivery';
+      default:
+        return 'Card Payment';
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -46,15 +79,57 @@ export const Success = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="bg-gray-50 rounded-lg p-6 mb-8"
+            className="space-y-4 mb-8"
           >
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <Package className="w-5 h-5 text-gray-600" />
-              <span className="text-sm font-medium text-gray-600">
-                Order Number
-              </span>
+            <div className="bg-gray-50 rounded-lg p-6">
+              <div className="flex items-center justify-center gap-2 mb-3">
+                <Package className="w-5 h-5 text-gray-600" />
+                <span className="text-sm font-medium text-gray-600">
+                  Order Number
+                </span>
+              </div>
+              <p className="text-2xl font-bold text-blue-600">{orderNumber}</p>
             </div>
-            <p className="text-2xl font-bold text-blue-600">{orderNumber}</p>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  {getPaymentIcon()}
+                  <span className="text-xs font-medium text-gray-600">
+                    Payment Method
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-gray-900 text-center">
+                  {getPaymentMethodName()}
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <CreditCard className="w-4 h-4 text-gray-600" />
+                  <span className="text-xs font-medium text-gray-600">
+                    Payment Status
+                  </span>
+                </div>
+                <p className={`text-sm font-semibold text-center ${
+                  paymentStatus === 'Pending' ? 'text-orange-600' : 'text-green-600'
+                }`}>
+                  {paymentStatus}
+                </p>
+              </div>
+
+              <div className="bg-gray-50 rounded-lg p-4">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <Package className="w-4 h-4 text-gray-600" />
+                  <span className="text-xs font-medium text-gray-600">
+                    Order Status
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-blue-600 text-center">
+                  {orderStatus}
+                </p>
+              </div>
+            </div>
           </motion.div>
 
           <motion.div
@@ -99,6 +174,19 @@ export const Success = () => {
               </div>
             </div>
           </motion.div>
+
+          {paymentMethod === 'cod' && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65 }}
+              className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-8"
+            >
+              <p className="text-sm text-amber-800">
+                <strong>Note:</strong> Please keep the exact amount ready. Payment will be collected at the time of delivery.
+              </p>
+            </motion.div>
+          )}
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}

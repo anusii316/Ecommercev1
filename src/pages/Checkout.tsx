@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { Check, CreditCard, MapPin, FileText, Loader2, DollarSign } from 'lucide-react';
+import { Check, CreditCard, MapPin, FileText, Loader2, DollarSign, Smartphone, Wallet } from 'lucide-react';
 import { useCartStore } from '../stores/cartStore';
 
 interface ShippingFormData {
@@ -27,7 +27,7 @@ export const Checkout = () => {
   const navigate = useNavigate();
   const { items, getTotalPrice, clearCart } = useCartStore();
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [paymentMethod, setPaymentMethod] = useState<'card' | 'paypal' | ''>('');
+  const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'cod' | ''>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [shippingData, setShippingData] = useState<ShippingFormData | null>(null);
   const [billingData, setBillingData] = useState<BillingFormData | null>(null);
@@ -73,8 +73,14 @@ export const Checkout = () => {
 
     setTimeout(() => {
       clearCart();
-      navigate('/success');
-    }, 3000);
+      navigate('/success', {
+        state: {
+          paymentMethod,
+          paymentStatus: paymentMethod === 'cod' ? 'Pending' : 'Paid (Mock)',
+          orderStatus: 'Placed'
+        }
+      });
+    }, 2000);
   };
 
   return (
@@ -459,55 +465,94 @@ export const Checkout = () => {
                       <CreditCard className="w-5 h-5" />
                       Payment Method
                     </h3>
+
+                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+                      <p className="text-sm text-amber-800 font-medium">
+                        This is a demo checkout. Payment will be simulated.
+                      </p>
+                    </div>
+
                     <div className="space-y-4">
                       <button
-                        onClick={() => setPaymentMethod('card')}
-                        className={`w-full p-6 border-2 rounded-lg text-left transition-colors ${
-                          paymentMethod === 'card'
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-300 hover:border-blue-400'
+                        onClick={() => setPaymentMethod('upi')}
+                        className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
+                          paymentMethod === 'upi'
+                            ? 'border-blue-600 bg-blue-50 shadow-md'
+                            : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <CreditCard className="w-6 h-6" />
+                            <Smartphone className="w-6 h-6 text-blue-600" />
                             <div>
                               <h3 className="font-semibold text-gray-900">
-                                Credit / Debit Card
+                                UPI Payment
                               </h3>
                               <p className="text-sm text-gray-600">
-                                Pay securely with your card
+                                Google Pay / PhonePe / Paytm (Mock)
                               </p>
                             </div>
                           </div>
-                          {paymentMethod === 'card' && (
-                            <Check className="w-6 h-6 text-blue-600" />
+                          {paymentMethod === 'upi' && (
+                            <div className="flex items-center gap-2">
+                              <Check className="w-6 h-6 text-blue-600" />
+                            </div>
                           )}
                         </div>
                       </button>
 
                       <button
-                        onClick={() => setPaymentMethod('paypal')}
-                        className={`w-full p-6 border-2 rounded-lg text-left transition-colors ${
-                          paymentMethod === 'paypal'
-                            ? 'border-blue-600 bg-blue-50'
-                            : 'border-gray-300 hover:border-blue-400'
+                        onClick={() => setPaymentMethod('card')}
+                        className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
+                          paymentMethod === 'card'
+                            ? 'border-blue-600 bg-blue-50 shadow-md'
+                            : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
                         }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
-                            <div className="w-6 h-6 flex items-center justify-center">
-                              <span className="text-xl font-bold text-blue-600">P</span>
-                            </div>
+                            <CreditCard className="w-6 h-6 text-blue-600" />
                             <div>
-                              <h3 className="font-semibold text-gray-900">PayPal</h3>
+                              <h3 className="font-semibold text-gray-900">
+                                Credit / Debit Card
+                              </h3>
                               <p className="text-sm text-gray-600">
-                                Fast and secure checkout
+                                Visa, Mastercard, RuPay (Mock)
                               </p>
                             </div>
                           </div>
-                          {paymentMethod === 'paypal' && (
-                            <Check className="w-6 h-6 text-blue-600" />
+                          {paymentMethod === 'card' && (
+                            <div className="flex items-center gap-2">
+                              <Check className="w-6 h-6 text-blue-600" />
+                            </div>
+                          )}
+                        </div>
+                      </button>
+
+                      <button
+                        onClick={() => setPaymentMethod('cod')}
+                        className={`w-full p-6 border-2 rounded-lg text-left transition-all ${
+                          paymentMethod === 'cod'
+                            ? 'border-blue-600 bg-blue-50 shadow-md'
+                            : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <Wallet className="w-6 h-6 text-green-600" />
+                            <div>
+                              <h3 className="font-semibold text-gray-900">
+                                Cash on Delivery
+                              </h3>
+                              <p className="text-sm text-gray-600">
+                                Pay when you receive your order
+                              </p>
+                            </div>
+                          </div>
+                          {paymentMethod === 'cod' && (
+                            <div className="flex items-center gap-2">
+                              <Check className="w-6 h-6 text-blue-600" />
+                            </div>
                           )}
                         </div>
                       </button>
