@@ -272,14 +272,7 @@ export const OrderDetails = () => {
                   <p className="text-sm font-medium text-gray-900 mb-1">
                     Payment Method
                   </p>
-                  <p className="text-sm text-gray-600">
-                    {order.paymentMethod === 'upi' ? 'UPI Payment' :
-                     order.paymentMethod === 'card' ? 'Credit/Debit Card' :
-                     order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Credit Card'}
-                  </p>
-                  {order.paymentStatus && (
-                    <p className="text-xs text-gray-500 mt-1">{order.paymentStatus}</p>
-                  )}
+                  <p className="text-sm text-gray-600">Credit Card</p>
                 </div>
               </div>
             </div>
@@ -303,17 +296,12 @@ export const OrderDetails = () => {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  console.log('View Order Details clicked, opening modal for order:', order);
+                  console.log('View Order Details clicked');
                   setIsTrackingModalOpen(true);
-                }}
-                onMouseDown={(e) => {
-                  e.stopPropagation();
                 }}
                 type="button"
                 className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto', zIndex: 10 }}
+                style={{ pointerEvents: 'auto' }}
               >
                 <Eye className="w-5 h-5" />
                 View Order Details
@@ -322,17 +310,12 @@ export const OrderDetails = () => {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  console.log('Track Order clicked, opening modal for order:', order);
+                  console.log('Track Order clicked');
                   setIsTrackingModalOpen(true);
-                }}
-                onMouseDown={(e) => {
-                  e.stopPropagation();
                 }}
                 type="button"
                 className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto', zIndex: 10 }}
+                style={{ pointerEvents: 'auto' }}
               >
                 <MapPin className="w-5 h-5" />
                 Track Order

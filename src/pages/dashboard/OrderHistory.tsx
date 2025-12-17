@@ -156,16 +156,12 @@ export const OrderHistory = () => {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            e.nativeEvent.stopImmediatePropagation();
-                            console.log('View Order Details clicked for order:', order.orderNumber, order);
+                            console.log('View Order Details clicked for order:', order.orderNumber);
                             setTrackingOrder(order);
-                          }}
-                          onMouseDown={(e) => {
-                            e.stopPropagation();
                           }}
                           type="button"
                           className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg cursor-pointer"
-                          style={{ pointerEvents: 'auto', zIndex: 10 }}
+                          style={{ pointerEvents: 'auto' }}
                         >
                           <Eye className="w-5 h-5" />
                           View Order Details
@@ -175,16 +171,12 @@ export const OrderHistory = () => {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            e.nativeEvent.stopImmediatePropagation();
-                            console.log('Track Order clicked for order:', order.orderNumber, order);
+                            console.log('Track Order clicked for order:', order.orderNumber);
                             setTrackingOrder(order);
-                          }}
-                          onMouseDown={(e) => {
-                            e.stopPropagation();
                           }}
                           type="button"
                           className="flex-1 flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-3 px-4 rounded-lg font-semibold transition-colors shadow-md hover:shadow-lg cursor-pointer"
-                          style={{ pointerEvents: 'auto', zIndex: 10 }}
+                          style={{ pointerEvents: 'auto' }}
                         >
                           <MapPin className="w-5 h-5" />
                           Track Order

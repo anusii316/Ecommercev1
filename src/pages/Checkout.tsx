@@ -179,7 +179,24 @@ export const Checkout = () => {
       addOrder(newOrder);
       clearCart();
 
-      navigate(`/dashboard/orders/${newOrder.id}`);
+      navigate('/success', {
+        state: {
+          orderNumber,
+          paymentMethod,
+          paymentStatus: paymentMethod === 'cod' ? 'Pending (COD)' : 'Paid (Mock)',
+          orderStatus: 'Processing',
+          orderDate,
+          orderItems: items.map((item) => ({
+            id: item.id,
+            name: item.name,
+            price: item.price,
+            quantity: item.quantity,
+            image: item.image,
+          })),
+          shippingAddress: shippingAddressStr,
+          orderTotal: total * 1.18
+        }
+      });
     }, processingDelay);
   };
 
