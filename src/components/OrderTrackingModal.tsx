@@ -1,24 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Package, Truck, MapPin, CheckCircle, Clock } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { Order } from '../stores/orderStore';
 
 interface OrderTrackingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  order: {
-    id: string;
-    orderNumber: string;
-    status: 'Processing' | 'Shipped' | 'Out for Delivery' | 'Delivered' | 'Cancelled';
-    date: string;
-    shippingAddress: string;
-    items: Array<{
-      name: string;
-      quantity: number;
-      price: number;
-      image: string;
-    }>;
-    total: number;
-  };
+  order: Order;
 }
 
 export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModalProps) => {
@@ -231,7 +219,11 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
                   <h3 className="font-semibold text-gray-900 mb-3">Delivery Address</h3>
                   <div className="flex items-start gap-3">
                     <MapPin className="w-5 h-5 text-gray-500 mt-0.5" />
-                    <p className="text-sm text-gray-700">{order.shippingAddress}</p>
+                    <div className="text-sm text-gray-700">
+                      <p>{order.shippingAddress.street}</p>
+                      <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}</p>
+                      <p>{order.shippingAddress.country}</p>
+                    </div>
                   </div>
                 </div>
 

@@ -50,7 +50,7 @@ export const OrderDetails = () => {
     0
   );
   const tax = subtotal * 0.1;
-  const shipping = 0;
+  const shipping: number = 0;
 
   const deliverySteps = [
     {
@@ -302,85 +302,56 @@ export const OrderDetails = () => {
             className="space-y-3"
           >
             {order.status === 'Cancelled' ? (
-              <button
-                disabled
-                type="button"
-                className="w-full bg-gray-300 text-gray-500 py-4 px-4 rounded-lg font-semibold cursor-not-allowed text-lg"
-              >
-                Order Cancelled
-              </button>
+              <div className="bg-red-50 border-2 border-red-200 rounded-lg p-4 text-center">
+                <XCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                <p className="font-semibold text-red-900">Order Cancelled</p>
+                <p className="text-sm text-red-700 mt-1">This order has been cancelled</p>
+              </div>
             ) : order.status === 'Delivered' ? (
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  console.log('View Order Details clicked, opening modal for order:', order);
-                  setIsTrackingModalOpen(true);
-                }}
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-                }}
-                type="button"
-                className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto', zIndex: 10 }}
-              >
-                <Eye className="w-5 h-5" />
-                View Order Details
-              </button>
+              <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center mb-3">
+                <Eye className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                <p className="font-semibold text-green-900">Order Delivered</p>
+                <p className="text-sm text-green-700 mt-1">Your order has been successfully delivered</p>
+              </div>
             ) : (
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  e.nativeEvent.stopImmediatePropagation();
-                  console.log('Track Order clicked, opening modal for order:', order);
-                  setIsTrackingModalOpen(true);
-                }}
-                onMouseDown={(e) => {
-                  e.stopPropagation();
-                }}
-                type="button"
-                className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto', zIndex: 10 }}
+                onClick={() => setIsTrackingModalOpen(true)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2"
               >
                 <MapPin className="w-5 h-5" />
                 Track Order
               </button>
             )}
+
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                console.log('Download Invoice clicked');
-              }}
-              type="button"
+              onClick={() => console.log('Download Invoice clicked')}
               disabled={order.status === 'Cancelled'}
               className={`w-full py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 ${
                 order.status === 'Cancelled'
                   ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                  : 'bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 cursor-pointer'
+                  : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
               }`}
-              style={{ pointerEvents: order.status === 'Cancelled' ? 'none' : 'auto' }}
             >
               <Download className="w-5 h-5" />
               Download Invoice
             </button>
-            {(order.status === 'Processing' || order.status === 'Shipped') && (
+
+            {order.status === 'Processing' && (
               <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('Cancel Order clicked');
-                  setIsCancelModalOpen(true);
-                }}
-                type="button"
-                className="w-full bg-white hover:bg-red-50 active:bg-red-100 text-red-600 border-2 border-red-600 py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto' }}
+                onClick={() => setIsCancelModalOpen(true)}
+                className="w-full bg-white hover:bg-red-50 text-red-600 border-2 border-red-600 py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2"
               >
                 <XCircle className="w-5 h-5" />
                 Cancel Order
               </button>
             )}
+
+            <button
+              onClick={() => navigate('/shop')}
+              className="w-full bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300 py-4 px-4 rounded-lg font-semibold text-lg transition-colors"
+            >
+              Continue Shopping
+            </button>
           </motion.div>
         </div>
       </div>
