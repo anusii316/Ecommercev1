@@ -296,12 +296,17 @@ export const OrderDetails = () => {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  console.log('View Order Details clicked');
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  console.log('View Order Details clicked, opening modal for order:', order);
                   setIsTrackingModalOpen(true);
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
                 }}
                 type="button"
                 className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto' }}
+                style={{ pointerEvents: 'auto', zIndex: 10 }}
               >
                 <Eye className="w-5 h-5" />
                 View Order Details
@@ -310,12 +315,17 @@ export const OrderDetails = () => {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  console.log('Track Order clicked');
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  console.log('Track Order clicked, opening modal for order:', order);
                   setIsTrackingModalOpen(true);
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
                 }}
                 type="button"
                 className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
-                style={{ pointerEvents: 'auto' }}
+                style={{ pointerEvents: 'auto', zIndex: 10 }}
               >
                 <MapPin className="w-5 h-5" />
                 Track Order
