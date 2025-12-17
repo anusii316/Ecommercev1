@@ -35,7 +35,8 @@ export const Checkout = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [shippingData, setShippingData] = useState<ShippingFormData | null>(null);
   const [billingData, setBillingData] = useState<BillingFormData | null>(null);
-  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
+  const [addressMode, setAddressMode] = useState<'saved' | 'new'>(savedAddresses.length > 0 ? 'saved' : 'new');
+  const [selectedSavedAddress, setSelectedSavedAddress] = useState<any>(null);
 
   const {
     register: registerShipping,
@@ -56,35 +57,46 @@ export const Checkout = () => {
 
   useEffect(() => {
     const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
-    if (defaultAddress) {
-      setSelectedAddressId(defaultAddress.id);
-      fillAddressForm(defaultAddress);
+    if (defaultAddress && savedAddresses.length > 0) {
+      setSelectedSavedAddress(defaultAddress);
+      setAddressMode('saved');
     }
   }, []);
 
-  const fillAddressForm = (address: any) => {
-    setShippingValue('fullName', address.fullName);
-    setShippingValue('address', address.address);
-    setShippingValue('city', address.city);
-    setShippingValue('state', address.state);
-    setShippingValue('zipCode', address.zipCode);
-    if (user?.email) {
-      setShippingValue('email', user.email);
-    }
+  const handleAddressSelect = (address: any) => {
+    setSelectedSavedAddress(address);
+    setAddressMode('saved');
   };
 
-  const handleAddressSelect = (addressId: string) => {
-    setSelectedAddressId(addressId);
-    const address = savedAddresses.find((addr) => addr.id === addressId);
-    if (address) {
-      fillAddressForm(address);
-    }
+  const handleUseNewAddress = () => {
+    setSelectedSavedAddress(null);
+    setAddressMode('new');
   };
 
   if (items.length === 0) {
     navigate('/cart');
     return null;
   }
+
+  const handleContinueShipping = () => {
+    if (addressMode === 'saved') {
+      if (!selectedSavedAddress) {
+        alert('Please select a saved address');
+        return;
+      }
+      const savedShippingData: ShippingFormData = {
+        fullName: selectedSavedAddress.fullName,
+        email: user?.email || '',
+        address: selectedSavedAddress.address,
+        city: selectedSavedAddress.city,
+        state: selectedSavedAddress.state,
+        zipCode: selectedSavedAddress.zipCode,
+        phone: '',
+      };
+      setShippingData(savedShippingData);
+      setStep(2);
+    }
+  };
 
   const onShippingSubmit = (data: ShippingFormData) => {
     setShippingData(data);
@@ -213,19 +225,19 @@ export const Checkout = () => {
                     </h2>
                   </div>
 
-                  {savedAddresses.length > 0 && (
+                  {savedAddresses.length > 0 && addressMode === 'saved' && (
                     <div className="mb-6">
                       <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                        Saved Addresses
+                        Select a Saved Address
                       </h3>
                       <div className="grid grid-cols-1 gap-3 mb-4">
                         {savedAddresses.map((address) => (
                           <button
                             key={address.id}
                             type="button"
-                            onClick={() => handleAddressSelect(address.id)}
+                            onClick={() => handleAddressSelect(address)}
                             className={`p-4 border-2 rounded-lg text-left transition-all ${
-                              selectedAddressId === address.id
+                              selectedSavedAddress?.id === address.id
                                 ? 'border-blue-600 bg-blue-50'
                                 : 'border-gray-300 hover:border-blue-400'
                             }`}
@@ -247,159 +259,192 @@ export const Checkout = () => {
                                   {address.address}, {address.city}, {address.state} {address.zipCode}
                                 </p>
                               </div>
-                              {selectedAddressId === address.id && (
+                              {selectedSavedAddress?.id === address.id && (
                                 <Check className="w-5 h-5 text-blue-600 flex-shrink-0" />
                               )}
                             </div>
                           </button>
                         ))}
                       </div>
-                      <div className="border-t pt-4">
-                        <p className="text-sm text-gray-600 mb-3">
-                          Or enter a new shipping address:
-                        </p>
+                      <div className="flex gap-3">
+                        <button
+                          type="button"
+                          onClick={handleContinueShipping}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                        >
+                          Continue to Billing
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleUseNewAddress}
+                          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
+                        >
+                          Use New Address
+                        </button>
                       </div>
                     </div>
                   )}
 
-                  <form onSubmit={handleShippingSubmit(onShippingSubmit)} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Full Name *
-                      </label>
-                      <input
-                        {...registerShipping('fullName', { required: 'Full name is required' })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      {shippingErrors.fullName && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {shippingErrors.fullName.message}
-                        </p>
-                      )}
+                  {addressMode === 'new' && savedAddresses.length > 0 && (
+                    <div className="mb-4">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAddressMode('saved');
+                          const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
+                          if (defaultAddress) {
+                            setSelectedSavedAddress(defaultAddress);
+                          }
+                        }}
+                        className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-2"
+                      >
+                        <MapPin className="w-4 h-4" />
+                        Use a saved address instead
+                      </button>
+                      <div className="border-t mt-4 mb-4"></div>
                     </div>
+                  )}
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Email Address *
-                      </label>
-                      <input
-                        type="email"
-                        {...registerShipping('email', {
-                          required: 'Email is required',
-                          pattern: {
-                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: 'Invalid email address',
-                          },
-                        })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      {shippingErrors.email && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {shippingErrors.email.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Street Address *
-                      </label>
-                      <input
-                        {...registerShipping('address', { required: 'Address is required' })}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      />
-                      {shippingErrors.address && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {shippingErrors.address.message}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
+                  {addressMode === 'new' && (
+                    <form onSubmit={handleShippingSubmit(onShippingSubmit)} className="space-y-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          City *
+                          Full Name *
                         </label>
                         <input
-                          {...registerShipping('city', { required: 'City is required' })}
+                          {...registerShipping('fullName', { required: 'Full name is required' })}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
-                        {shippingErrors.city && (
+                        {shippingErrors.fullName && (
                           <p className="text-red-500 text-sm mt-1">
-                            {shippingErrors.city.message}
+                            {shippingErrors.fullName.message}
                           </p>
                         )}
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          State *
+                          Email Address *
                         </label>
                         <input
-                          {...registerShipping('state', { required: 'State is required' })}
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        />
-                        {shippingErrors.state && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {shippingErrors.state.message}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          PIN Code *
-                        </label>
-                        <input
-                          type="text"
-                          inputMode="numeric"
-                          maxLength={6}
-                          {...registerShipping('zipCode', {
-                            required: 'PIN code is required',
+                          type="email"
+                          {...registerShipping('email', {
+                            required: 'Email is required',
                             pattern: {
-                              value: /^\d{6}$/,
-                              message: 'Invalid PIN code',
+                              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                              message: 'Invalid email address',
                             },
                           })}
-                          onKeyPress={(e) => {
-                            if (!/[0-9]/.test(e.key)) {
-                              e.preventDefault();
-                            }
-                          }}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
-                        {shippingErrors.zipCode && (
+                        {shippingErrors.email && (
                           <p className="text-red-500 text-sm mt-1">
-                            {shippingErrors.zipCode.message}
+                            {shippingErrors.email.message}
                           </p>
                         )}
                       </div>
 
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Phone Number *
+                          Street Address *
                         </label>
                         <input
-                          {...registerShipping('phone', { required: 'Phone number is required' })}
+                          {...registerShipping('address', { required: 'Address is required' })}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
-                        {shippingErrors.phone && (
+                        {shippingErrors.address && (
                           <p className="text-red-500 text-sm mt-1">
-                            {shippingErrors.phone.message}
+                            {shippingErrors.address.message}
                           </p>
                         )}
                       </div>
-                    </div>
 
-                    <button
-                      type="submit"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                    >
-                      Continue to Billing
-                    </button>
-                  </form>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            City *
+                          </label>
+                          <input
+                            {...registerShipping('city', { required: 'City is required' })}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          {shippingErrors.city && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {shippingErrors.city.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            State *
+                          </label>
+                          <input
+                            {...registerShipping('state', { required: 'State is required' })}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          {shippingErrors.state && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {shippingErrors.state.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            PIN Code *
+                          </label>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            maxLength={6}
+                            {...registerShipping('zipCode', {
+                              required: 'PIN code is required',
+                              pattern: {
+                                value: /^\d{6}$/,
+                                message: 'Invalid PIN code',
+                              },
+                            })}
+                            onKeyPress={(e) => {
+                              if (!/[0-9]/.test(e.key)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          {shippingErrors.zipCode && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {shippingErrors.zipCode.message}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Phone Number *
+                          </label>
+                          <input
+                            {...registerShipping('phone', { required: 'Phone number is required' })}
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          />
+                          {shippingErrors.phone && (
+                            <p className="text-red-500 text-sm mt-1">
+                              {shippingErrors.phone.message}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
+                      >
+                        Continue to Billing
+                      </button>
+                    </form>
+                  )}
                 </motion.div>
               )}
 
