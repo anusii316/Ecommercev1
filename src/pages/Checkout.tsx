@@ -225,92 +225,156 @@ export const Checkout = () => {
                     </h2>
                   </div>
 
+                  {savedAddresses.length > 0 && (
+                    <div className="mb-8">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Choose Address Option
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAddressMode('saved');
+                            const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
+                            if (defaultAddress) {
+                              setSelectedSavedAddress(defaultAddress);
+                            }
+                          }}
+                          className={`p-6 border-3 rounded-xl text-left transition-all ${
+                            addressMode === 'saved'
+                              ? 'border-blue-600 bg-blue-50 shadow-lg'
+                              : 'border-gray-300 hover:border-blue-400 hover:shadow-md bg-white'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-3 rounded-lg ${
+                                addressMode === 'saved' ? 'bg-blue-100' : 'bg-gray-100'
+                              }`}>
+                                <MapPin className={`w-6 h-6 ${
+                                  addressMode === 'saved' ? 'text-blue-600' : 'text-gray-600'
+                                }`} />
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-bold text-gray-900">
+                                  Use Saved Address
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  {savedAddresses.length} {savedAddresses.length === 1 ? 'address' : 'addresses'} available
+                                </p>
+                              </div>
+                            </div>
+                            {addressMode === 'saved' && (
+                              <Check className="w-7 h-7 text-blue-600 flex-shrink-0" />
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            Select from your previously saved addresses for faster checkout
+                          </p>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={handleUseNewAddress}
+                          className={`p-6 border-3 rounded-xl text-left transition-all ${
+                            addressMode === 'new'
+                              ? 'border-blue-600 bg-blue-50 shadow-lg'
+                              : 'border-gray-300 hover:border-blue-400 hover:shadow-md bg-white'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="flex items-center gap-3">
+                              <div className={`p-3 rounded-lg ${
+                                addressMode === 'new' ? 'bg-blue-100' : 'bg-gray-100'
+                              }`}>
+                                <FileText className={`w-6 h-6 ${
+                                  addressMode === 'new' ? 'text-blue-600' : 'text-gray-600'
+                                }`} />
+                              </div>
+                              <div>
+                                <h4 className="text-lg font-bold text-gray-900">
+                                  Enter New Address
+                                </h4>
+                                <p className="text-sm text-gray-600">
+                                  Add a different address
+                                </p>
+                              </div>
+                            </div>
+                            {addressMode === 'new' && (
+                              <Check className="w-7 h-7 text-blue-600 flex-shrink-0" />
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            Fill in the form below to use a new shipping address
+                          </p>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   {savedAddresses.length > 0 && addressMode === 'saved' && (
                     <div className="mb-6">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
                         Select a Saved Address
                       </h3>
-                      <div className="grid grid-cols-1 gap-3 mb-4">
+                      <div className="grid grid-cols-1 gap-3 mb-6">
                         {savedAddresses.map((address) => (
                           <button
                             key={address.id}
                             type="button"
                             onClick={() => handleAddressSelect(address)}
-                            className={`p-4 border-2 rounded-lg text-left transition-all ${
+                            className={`p-5 border-2 rounded-lg text-left transition-all ${
                               selectedSavedAddress?.id === address.id
-                                ? 'border-blue-600 bg-blue-50'
-                                : 'border-gray-300 hover:border-blue-400'
+                                ? 'border-blue-600 bg-blue-50 shadow-md'
+                                : 'border-gray-300 hover:border-blue-400 hover:shadow-sm'
                             }`}
                           >
                             <div className="flex items-start justify-between">
                               <div>
-                                <div className="flex items-center gap-2 mb-1">
-                                  <span className="font-semibold text-gray-900">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <span className="font-semibold text-gray-900 text-lg">
                                     {address.label}
                                   </span>
                                   {address.isDefault && (
-                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                                    <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-semibold">
                                       Default
                                     </span>
                                   )}
                                 </div>
-                                <p className="text-gray-700 font-medium">{address.fullName}</p>
+                                <p className="text-gray-700 font-medium mb-1">{address.fullName}</p>
                                 <p className="text-sm text-gray-600">
                                   {address.address}, {address.city}, {address.state} {address.zipCode}
                                 </p>
                               </div>
                               {selectedSavedAddress?.id === address.id && (
-                                <Check className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                                <div className="flex items-center justify-center w-8 h-8 bg-blue-600 rounded-full flex-shrink-0">
+                                  <Check className="w-5 h-5 text-white" />
+                                </div>
                               )}
                             </div>
                           </button>
                         ))}
                       </div>
-                      <div className="flex gap-3">
-                        <button
-                          type="button"
-                          onClick={handleContinueShipping}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                        >
-                          Continue to Billing
-                        </button>
-                        <button
-                          type="button"
-                          onClick={handleUseNewAddress}
-                          className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors"
-                        >
-                          Use New Address
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {addressMode === 'new' && savedAddresses.length > 0 && (
-                    <div className="mb-4">
                       <button
                         type="button"
-                        onClick={() => {
-                          setAddressMode('saved');
-                          const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
-                          if (defaultAddress) {
-                            setSelectedSavedAddress(defaultAddress);
-                          }
-                        }}
-                        className="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-2"
+                        onClick={handleContinueShipping}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg"
                       >
-                        <MapPin className="w-4 h-4" />
-                        Use a saved address instead
+                        Continue to Billing
                       </button>
-                      <div className="border-t mt-4 mb-4"></div>
                     </div>
                   )}
 
                   {addressMode === 'new' && (
-                    <form onSubmit={handleShippingSubmit(onShippingSubmit)} className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                          Full Name *
-                        </label>
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                        Enter New Shipping Address
+                      </h3>
+                      <form onSubmit={handleShippingSubmit(onShippingSubmit)} className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Full Name *
+                          </label>
                         <input
                           {...registerShipping('fullName', { required: 'Full name is required' })}
                           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -437,13 +501,14 @@ export const Checkout = () => {
                         </div>
                       </div>
 
-                      <button
-                        type="submit"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors"
-                      >
-                        Continue to Billing
-                      </button>
-                    </form>
+                        <button
+                          type="submit"
+                          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg"
+                        >
+                          Continue to Billing
+                        </button>
+                      </form>
+                    </div>
                   )}
                 </motion.div>
               )}
