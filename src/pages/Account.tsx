@@ -249,18 +249,13 @@ export const Account = () => {
                     </div>
 
                     <div className="mt-4 space-y-3">
-                      <div className="flex gap-3">
-                        <button
-                          onClick={() => navigate(`/product/${order.items[0].id}`)}
-                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
-                        >
-                          <Eye className="w-4 h-4 inline mr-2" />
-                          View Products
-                        </button>
-                        <button className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors">
-                          Track Order
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => navigate(`/product/${order.items[0].id}`)}
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
+                      >
+                        <Eye className="w-4 h-4 inline mr-2" />
+                        View Products
+                      </button>
                       {(order.status === 'Processing' || order.status === 'Shipped') && (
                         <button
                           onClick={() => setCancellingOrder(order)}
