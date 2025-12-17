@@ -11,10 +11,12 @@ import {
   Check,
   Eye,
   X,
+  XCircle,
 } from 'lucide-react';
 import { useAuthStore } from '../stores/authStore';
 import { useOrderStore, SavedAddress, PaymentMethod } from '../stores/orderStore';
 import { useToastStore } from '../stores/toastStore';
+import { CancelOrderModal } from '../components/CancelOrderModal';
 
 export const Account = () => {
   const navigate = useNavigate();
@@ -29,6 +31,7 @@ export const Account = () => {
     addPaymentMethod,
     removePaymentMethod,
     setDefaultPaymentMethod,
+    cancelOrder,
   } = useOrderStore();
   const { addToast } = useToastStore();
 
@@ -37,6 +40,7 @@ export const Account = () => {
   );
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [cancellingOrder, setCancellingOrder] = useState<any>(null);
   const [newAddress, setNewAddress] = useState({
     label: '',
     fullName: '',
@@ -47,7 +51,7 @@ export const Account = () => {
     phone: '',
   });
   const [newPayment, setNewPayment] = useState({
-    type: 'card' as 'card' | 'upi' | 'wallet',
+    type: 'card' as 'card' | 'upi',
     cardNumber: '',
     cardHolder: '',
     expiryDate: '',
@@ -82,10 +86,6 @@ export const Account = () => {
       addToast('Please fill all card details', 'error');
       return;
     }
-    if (newPayment.type === 'upi' && !newPayment.upiId) {
-      addToast('Please enter UPI ID', 'error');
-      return;
-    }
 
     const payment: PaymentMethod = {
       id: `pm_${Date.now()}`,
@@ -93,6 +93,7 @@ export const Account = () => {
       cardNumber: newPayment.type === 'card' ? `•••• •••• •••• ${newPayment.cardNumber.slice(-4)}` : undefined,
       cardHolder: newPayment.type === 'card' ? newPayment.cardHolder : undefined,
       expiryDate: newPayment.type === 'card' ? newPayment.expiryDate : undefined,
+      upiId: newPayment.type === 'upi' && newPayment.upiId ? newPayment.upiId : undefined,
       isDefault: paymentMethods.length === 0,
     };
 
@@ -100,6 +101,14 @@ export const Account = () => {
     addToast('Payment method added successfully', 'success');
     setShowPaymentModal(false);
     setNewPayment({ type: 'card', cardNumber: '', cardHolder: '', expiryDate: '', upiId: '' });
+  };
+
+  const handleCancelOrder = () => {
+    if (cancellingOrder) {
+      cancelOrder(cancellingOrder.id);
+      setCancellingOrder(null);
+      addToast('Order cancelled successfully', 'success');
+    }
   };
 
   useEffect(() => {
@@ -239,17 +248,28 @@ export const Account = () => {
                       ))}
                     </div>
 
-                    <div className="mt-4 flex gap-3">
-                      <button
-                        onClick={() => navigate(`/product/${order.items[0].id}`)}
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
-                      >
-                        <Eye className="w-4 h-4 inline mr-2" />
-                        View Products
-                      </button>
-                      <button className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors">
-                        Track Order
-                      </button>
+                    <div className="mt-4 space-y-3">
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => navigate(`/product/${order.items[0].id}`)}
+                          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg font-medium transition-colors"
+                        >
+                          <Eye className="w-4 h-4 inline mr-2" />
+                          View Products
+                        </button>
+                        <button className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 rounded-lg font-medium transition-colors">
+                          Track Order
+                        </button>
+                      </div>
+                      {(order.status === 'Processing' || order.status === 'Shipped') && (
+                        <button
+                          onClick={() => setCancellingOrder(order)}
+                          className="w-full bg-white hover:bg-red-50 active:bg-red-100 text-red-600 border-2 border-red-600 py-2 rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <XCircle className="w-4 h-4" />
+                          Cancel Order
+                        </button>
+                      )}
                     </div>
                   </motion.div>
                 ))}
@@ -363,11 +383,11 @@ export const Account = () => {
                           <CreditCard className="w-8 h-8 text-gray-700" />
                         ) : (
                           <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
-                            <span className="text-white font-bold">P</span>
+                            <span className="text-white font-bold text-sm">UPI</span>
                           </div>
                         )}
                         <h3 className="text-lg font-bold text-gray-900">
-                          {method.type === 'card' ? 'Credit/Debit Card' : method.type === 'upi' ? 'UPI' : 'Wallet'}
+                          {method.type === 'card' ? 'Credit/Debit Card' : 'UPI'}
                         </h3>
                       </div>
 
@@ -384,14 +404,10 @@ export const Account = () => {
                           </p>
                         </>
                       ) : method.type === 'upi' ? (
-                        <p className="text-gray-600">
-                          UPI account linked
+                        <p className="text-gray-700 font-medium">
+                          {method.upiId || 'UPI account linked'}
                         </p>
-                      ) : (
-                        <p className="text-gray-600">
-                          Wallet connected
-                        </p>
-                      )}
+                      ) : null}
 
                       <div className="mt-4 flex gap-2">
                         {!method.isDefault && (
@@ -580,7 +596,7 @@ export const Account = () => {
               <div className="space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Payment Type</label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 gap-3">
                     <button
                       onClick={() => setNewPayment({ ...newPayment, type: 'card' })}
                       className={`py-3 rounded-lg font-medium transition-colors ${
@@ -600,16 +616,6 @@ export const Account = () => {
                       }`}
                     >
                       UPI
-                    </button>
-                    <button
-                      onClick={() => setNewPayment({ ...newPayment, type: 'wallet' })}
-                      className={`py-3 rounded-lg font-medium transition-colors ${
-                        newPayment.type === 'wallet'
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      Wallet
                     </button>
                   </div>
                 </div>
@@ -664,20 +670,21 @@ export const Account = () => {
 
                 {newPayment.type === 'upi' && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">UPI ID*</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">UPI ID (optional)</label>
                     <input
                       type="text"
                       value={newPayment.upiId}
                       onChange={(e) => setNewPayment({ ...newPayment, upiId: e.target.value })}
-                      placeholder="yourname@upi"
+                      placeholder="yourname@paytm"
                       className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     />
-                  </div>
-                )}
-
-                {newPayment.type === 'wallet' && (
-                  <div className="text-center py-4 text-gray-600">
-                    Wallet will be linked during checkout
+                    <div className="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <p className="text-sm text-blue-900">
+                        You will be redirected to your UPI app to complete payment.
+                        <br />
+                        <span className="font-semibold">(This is a demo checkout. Payment will be simulated.)</span>
+                      </p>
+                    </div>
                   </div>
                 )}
 
@@ -698,6 +705,15 @@ export const Account = () => {
               </div>
             </motion.div>
           </motion.div>
+        )}
+
+        {cancellingOrder && (
+          <CancelOrderModal
+            isOpen={true}
+            onClose={() => setCancellingOrder(null)}
+            onConfirm={handleCancelOrder}
+            orderNumber={cancellingOrder.orderNumber}
+          />
         )}
       </AnimatePresence>
     </div>

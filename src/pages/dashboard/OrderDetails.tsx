@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -8,13 +9,20 @@ import {
   MapPin,
   Calendar,
   DollarSign,
+  Eye,
+  Download,
+  XCircle,
 } from 'lucide-react';
 import { useOrderStore } from '../../stores/orderStore';
+import { OrderTrackingModal } from '../../components/OrderTrackingModal';
+import { CancelOrderModal } from '../../components/CancelOrderModal';
 
 export const OrderDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { getOrderById } = useOrderStore();
+  const { getOrderById, cancelOrder } = useOrderStore();
+  const [isTrackingModalOpen, setIsTrackingModalOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
   const order = getOrderById(id!);
 
@@ -31,6 +39,11 @@ export const OrderDetails = () => {
       </div>
     );
   }
+
+  const handleCancelOrder = () => {
+    cancelOrder(id!);
+    setIsCancelModalOpen(false);
+  };
 
   const subtotal = order.items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -267,7 +280,14 @@ export const OrderDetails = () => {
                   <p className="text-sm font-medium text-gray-900 mb-1">
                     Payment Method
                   </p>
-                  <p className="text-sm text-gray-600">Credit Card</p>
+                  <p className="text-sm text-gray-600">
+                    {order.paymentMethod === 'upi' ? 'UPI Payment' :
+                     order.paymentMethod === 'card' ? 'Credit/Debit Card' :
+                     order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Credit Card'}
+                  </p>
+                  {order.paymentStatus && (
+                    <p className="text-xs text-gray-500 mt-1">{order.paymentStatus}</p>
+                  )}
                 </div>
               </div>
             </div>
@@ -279,25 +299,102 @@ export const OrderDetails = () => {
             transition={{ delay: 0.2 }}
             className="space-y-3"
           >
-            {order.status === 'Delivered' ? (
-              <div className="w-full bg-green-50 border-2 border-green-500 text-green-700 py-3 rounded-lg font-semibold text-center">
-                Delivered on {order.date}
-              </div>
-            ) : order.status === 'Cancelled' ? (
-              <div className="w-full bg-red-50 border-2 border-red-500 text-red-700 py-3 rounded-lg font-semibold text-center">
+            {order.status === 'Cancelled' ? (
+              <button
+                disabled
+                type="button"
+                className="w-full bg-gray-300 text-gray-500 py-4 px-4 rounded-lg font-semibold cursor-not-allowed text-lg"
+              >
                 Order Cancelled
-              </div>
+              </button>
+            ) : order.status === 'Delivered' ? (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  console.log('View Order Details clicked, opening modal for order:', order);
+                  setIsTrackingModalOpen(true);
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                }}
+                type="button"
+                className="w-full bg-green-600 hover:bg-green-700 active:bg-green-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                style={{ pointerEvents: 'auto', zIndex: 10 }}
+              >
+                <Eye className="w-5 h-5" />
+                View Order Details
+              </button>
             ) : (
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-colors">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  e.nativeEvent.stopImmediatePropagation();
+                  console.log('Track Order clicked, opening modal for order:', order);
+                  setIsTrackingModalOpen(true);
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                }}
+                type="button"
+                className="w-full bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white py-4 px-4 rounded-lg font-semibold text-lg transition-colors shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                style={{ pointerEvents: 'auto', zIndex: 10 }}
+              >
+                <MapPin className="w-5 h-5" />
                 Track Order
               </button>
             )}
-            <button className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold transition-colors">
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                console.log('Download Invoice clicked');
+              }}
+              type="button"
+              disabled={order.status === 'Cancelled'}
+              className={`w-full py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 ${
+                order.status === 'Cancelled'
+                  ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                  : 'bg-gray-200 hover:bg-gray-300 active:bg-gray-400 text-gray-700 cursor-pointer'
+              }`}
+              style={{ pointerEvents: order.status === 'Cancelled' ? 'none' : 'auto' }}
+            >
+              <Download className="w-5 h-5" />
               Download Invoice
             </button>
+            {(order.status === 'Processing' || order.status === 'Shipped') && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('Cancel Order clicked');
+                  setIsCancelModalOpen(true);
+                }}
+                type="button"
+                className="w-full bg-white hover:bg-red-50 active:bg-red-100 text-red-600 border-2 border-red-600 py-4 px-4 rounded-lg font-semibold text-lg transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                style={{ pointerEvents: 'auto' }}
+              >
+                <XCircle className="w-5 h-5" />
+                Cancel Order
+              </button>
+            )}
           </motion.div>
         </div>
       </div>
+
+      <OrderTrackingModal
+        isOpen={isTrackingModalOpen}
+        onClose={() => setIsTrackingModalOpen(false)}
+        order={order}
+      />
+
+      <CancelOrderModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleCancelOrder}
+        orderNumber={order.orderNumber}
+      />
     </div>
   );
 };
