@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { SlidersHorizontal, ShoppingCart } from 'lucide-react';
 import { products } from '../lib/products';
 import { useCartStore } from '../stores/cartStore';
 
 export const Shop = () => {
+  const navigate = useNavigate();
   const { addItem } = useCartStore();
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 3000]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -150,12 +152,13 @@ export const Shop = () => {
               transition={{ duration: 0.5 }}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
             >
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <motion.div
                   key={product.id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   whileHover={{ y: -5 }}
+                  onClick={() => navigate(`/product/${product.id}`)}
                   className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer group relative"
                 >
                   <div className="aspect-square overflow-hidden">
@@ -198,12 +201,15 @@ export const Shop = () => {
                       </div>
 
                       <button
-                        onClick={() => addItem({
-                          id: product.id,
-                          name: product.name,
-                          price: product.price,
-                          image: product.image,
-                        }, 1)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          addItem({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            image: product.image,
+                          }, 1);
+                        }}
                         className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors"
                       >
                         <ShoppingCart className="w-5 h-5" />
