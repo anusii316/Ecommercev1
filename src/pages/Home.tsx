@@ -26,7 +26,6 @@ import { mockTestimonials, brandLogos } from '../data/mockTestimonials';
 export const Home = () => {
   const navigate = useNavigate();
   const { products } = useProductsStore();
-  const [showModal, setShowModal] = useState(false);
   const [categoryScroll, setCategoryScroll] = useState(0);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [heroSlide, setHeroSlide] = useState(0);
@@ -49,18 +48,12 @@ export const Home = () => {
     const endTime = performance.now();
     console.log(`Heavy computation took ${endTime - startTime}ms`);
 
-    const timer = setTimeout(() => {
-      setShowModal(true);
-    }, 10000);
-
     const viewed = localStorage.getItem('recentlyViewed');
     if (viewed) {
       const viewedIds = JSON.parse(viewed);
       const viewedProducts = products.filter((p) => viewedIds.includes(p.id));
       setRecentlyViewed(viewedProducts);
     }
-
-    return () => clearTimeout(timer);
   }, [products]);
 
   useEffect(() => {
@@ -1105,62 +1098,6 @@ export const Home = () => {
       </motion.section>
 
       <Footer />
-
-      <AnimatePresence>
-        {showModal && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowModal(false)}
-              className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
-            >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 50 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 50 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl p-12 max-w-lg w-full text-white relative shadow-2xl"
-              >
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="absolute top-4 right-4 text-white/80 hover:text-white"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-
-                <Gift className="w-20 h-20 mx-auto mb-6" />
-                <h3 className="text-4xl font-bold mb-4 text-center">
-                  Special Offer! 🎉
-                </h3>
-                <p className="text-xl mb-6 text-center">
-                  Get 25% OFF your first purchase! Use code{' '}
-                  <span className="font-bold bg-white/20 px-3 py-1 rounded">
-                    WELCOME25
-                  </span>
-                </p>
-                <div className="space-y-3">
-                  <input
-                    type="email"
-                    placeholder="Enter your email"
-                    className="w-full px-6 py-4 rounded-lg text-gray-900 text-lg"
-                  />
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="w-full bg-white text-blue-600 px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors"
-                  >
-                    Claim My Discount
-                  </button>
-                </div>
-                <p className="text-center text-white/80 mt-4 text-sm">
-                  Limited time offer. Terms and conditions apply.
-                </p>
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
     </div>
   );
 };
