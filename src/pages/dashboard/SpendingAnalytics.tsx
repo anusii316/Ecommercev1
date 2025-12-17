@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { TrendingUp, DollarSign, ShoppingBag, Calendar } from 'lucide-react';
+import { TrendingUp, IndianRupee, ShoppingBag, Calendar } from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -85,11 +85,11 @@ export const SpendingAnalytics = () => {
           className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-md p-6 text-white"
         >
           <div className="flex items-center justify-between mb-4">
-            <DollarSign className="w-10 h-10" />
+            <IndianRupee className="w-10 h-10" />
             <TrendingUp className="w-6 h-6 opacity-75" />
           </div>
           <p className="text-blue-100 mb-1">Total Spent</p>
-          <p className="text-3xl font-bold">${totalSpent.toFixed(2)}</p>
+          <p className="text-3xl font-bold">₹{totalSpent.toFixed(2)}</p>
         </motion.div>
 
         <motion.div
@@ -102,7 +102,7 @@ export const SpendingAnalytics = () => {
             <ShoppingBag className="w-10 h-10" />
           </div>
           <p className="text-green-100 mb-1">Average Order</p>
-          <p className="text-3xl font-bold">${averageOrderValue.toFixed(2)}</p>
+          <p className="text-3xl font-bold">₹{averageOrderValue.toFixed(2)}</p>
         </motion.div>
 
         <motion.div
@@ -146,7 +146,7 @@ export const SpendingAnalytics = () => {
               strokeWidth={3}
               dot={{ fill: '#3B82F6', r: 6 }}
               activeDot={{ r: 8 }}
-              name="Spending ($)"
+              name="Spending (₹)"
             />
           </LineChart>
         </ResponsiveContainer>
@@ -175,7 +175,7 @@ export const SpendingAnalytics = () => {
                 }}
               />
               <Legend />
-              <Bar dataKey="amount" fill="#3B82F6" name="Amount ($)" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="amount" fill="#3B82F6" name="Amount (₹)" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </motion.div>
@@ -246,7 +246,7 @@ export const SpendingAnalytics = () => {
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-gray-900">
-                      ${category.amount.toFixed(2)}
+                      ₹{category.amount.toFixed(2)}
                     </p>
                     <p className="text-sm text-gray-500">{category.count} orders</p>
                   </div>

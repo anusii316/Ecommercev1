@@ -69,6 +69,12 @@ export const Navbar = () => {
                   </button>
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
                     <Link
+                      to="/dashboard"
+                      className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                    >
+                      Dashboard
+                    </Link>
+                    <Link
                       to="/account"
                       className="block w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
                     >
@@ -147,6 +153,13 @@ export const Navbar = () => {
                     <div className="text-gray-700 font-medium">
                       Welcome, {user?.name}
                     </div>
+                    <Link
+                      to="/dashboard"
+                      className="block text-gray-700 hover:text-blue-600"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Dashboard
+                    </Link>
                     <Link
                       to="/account"
                       className="block text-gray-700 hover:text-blue-600"
