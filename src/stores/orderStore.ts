@@ -55,7 +55,6 @@ interface OrderState {
   initializeUserData: (userId: string, userName: string) => void;
   addOrder: (order: Order) => void;
   getOrderById: (id: string) => Order | undefined;
-  cancelOrder: (id: string) => void;
   addAddress: (address: SavedAddress) => void;
   updateAddress: (id: string, address: Partial<SavedAddress>) => void;
   removeAddress: (id: string) => void;
@@ -594,15 +593,6 @@ export const useOrderStore = create<OrderState>()(
       },
       getOrderById: (id) => {
         return get().orders.find((order) => order.id === id);
-      },
-      cancelOrder: (id) => {
-        const newOrders = get().orders.map((order) =>
-          order.id === id ? { ...order, status: 'Cancelled' as const } : order
-        );
-        set({ orders: newOrders });
-        if (get().currentUserId) {
-          saveUserOrders(get().currentUserId!, newOrders);
-        }
       },
       addAddress: (address) => {
         const newAddresses = [...get().savedAddresses, address];
