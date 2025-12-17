@@ -71,11 +71,14 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
 
   const trackingSteps = getTrackingSteps();
 
+  if (!isOpen) {
+    return null;
+  }
+
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center">
-          <motion.div
+    <AnimatePresence mode="wait">
+      <div className="fixed inset-0 z-[200] flex items-center justify-center">
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -259,7 +262,6 @@ export const OrderTrackingModal = ({ isOpen, onClose, order }: OrderTrackingModa
             </div>
           </motion.div>
         </div>
-      )}
-    </AnimatePresence>
-  );
-};
+      </AnimatePresence>
+    );
+  };

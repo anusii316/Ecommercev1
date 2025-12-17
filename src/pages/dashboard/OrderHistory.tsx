@@ -248,11 +248,13 @@ export const OrderHistory = () => {
         ))}
       </div>
 
-      <OrderTrackingModal
-        isOpen={!!trackingOrder}
-        onClose={() => setTrackingOrder(null)}
-        order={trackingOrder || orders[0]}
-      />
+      {trackingOrder && (
+        <OrderTrackingModal
+          isOpen={true}
+          onClose={() => setTrackingOrder(null)}
+          order={trackingOrder}
+        />
+      )}
 
       {cancellingOrder && (
         <CancelOrderModal
