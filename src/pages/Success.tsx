@@ -5,9 +5,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 export const Success = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const orderNumber = Math.random().toString(36).substring(2, 11).toUpperCase();
 
-  const { paymentMethod, paymentStatus, orderStatus } = location.state || {
+  const { orderNumber, paymentMethod, paymentStatus, orderStatus } = location.state || {
+    orderNumber: Math.random().toString(36).substring(2, 11).toUpperCase(),
     paymentMethod: 'card',
     paymentStatus: 'Paid (Mock)',
     orderStatus: 'Placed'

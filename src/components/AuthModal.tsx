@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../stores/authStore';
+import { useOrderStore } from '../stores/orderStore';
 import { useToastStore } from '../stores/toastStore';
 
 interface AuthModalProps {
@@ -14,7 +15,8 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { register, login, error, clearError } = useAuthStore();
+  const { register, login, error, clearError, user } = useAuthStore();
+  const { initializeUserData } = useOrderStore();
   const { addToast } = useToastStore();
 
   useEffect(() => {
@@ -37,6 +39,12 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     if (isLogin) {
       success = login(email, password);
       if (success) {
+        setTimeout(() => {
+          const currentUser = useAuthStore.getState().user;
+          if (currentUser) {
+            initializeUserData(currentUser.id, currentUser.name);
+          }
+        }, 0);
         addToast('Successfully logged in!', 'success');
         onClose();
         setName('');
@@ -46,6 +54,12 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     } else {
       success = register(name, email, password);
       if (success) {
+        setTimeout(() => {
+          const currentUser = useAuthStore.getState().user;
+          if (currentUser) {
+            initializeUserData(currentUser.id, currentUser.name);
+          }
+        }, 0);
         addToast('Account created successfully!', 'success');
         onClose();
         setName('');
@@ -64,6 +78,12 @@ export const AuthModal = ({ isOpen, onClose }: AuthModalProps) => {
     const success = login(demoEmail, demoPassword);
 
     if (success) {
+      setTimeout(() => {
+        const currentUser = useAuthStore.getState().user;
+        if (currentUser) {
+          initializeUserData(currentUser.id, currentUser.name);
+        }
+      }, 0);
       addToast('Logged in as Demo User!', 'success');
       onClose();
       setName('');

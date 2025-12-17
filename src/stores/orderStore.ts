@@ -37,10 +37,11 @@ export interface SavedAddress {
 
 export interface PaymentMethod {
   id: string;
-  type: 'card' | 'paypal';
+  type: 'card' | 'paypal' | 'upi' | 'wallet';
   cardNumber?: string;
   cardHolder?: string;
   expiryDate?: string;
+  upiId?: string;
   isDefault: boolean;
 }
 
@@ -537,9 +538,24 @@ export const useOrderStore = create<OrderState>()(
           return;
         }
 
-        const userOrders = loadUserOrders(userId);
-        const userAddresses = loadUserAddresses(userId);
-        const userPayments = loadUserPayments(userId);
+        let userOrders = loadUserOrders(userId);
+        let userAddresses = loadUserAddresses(userId);
+        let userPayments = loadUserPayments(userId);
+
+        if (userOrders.length === 0) {
+          userOrders = generateUserOrders(userId, userName);
+          saveUserOrders(userId, userOrders);
+        }
+
+        if (userAddresses.length === 0) {
+          userAddresses = generateUserAddresses(userName);
+          saveUserAddresses(userId, userAddresses);
+        }
+
+        if (userPayments.length === 0) {
+          userPayments = generateUserPaymentMethods();
+          saveUserPayments(userId, userPayments);
+        }
 
         set({
           currentUserId: userId,

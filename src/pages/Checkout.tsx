@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { Check, CreditCard, MapPin, FileText, Loader2, DollarSign, Smartphone, Wallet } from 'lucide-react';
 import { useCartStore } from '../stores/cartStore';
+import { useOrderStore } from '../stores/orderStore';
+import { useAuthStore } from '../stores/authStore';
 
 interface ShippingFormData {
   fullName: string;
@@ -26,16 +28,20 @@ interface BillingFormData {
 export const Checkout = () => {
   const navigate = useNavigate();
   const { items, getTotalPrice, clearCart } = useCartStore();
+  const { savedAddresses, addOrder } = useOrderStore();
+  const { user } = useAuthStore();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [paymentMethod, setPaymentMethod] = useState<'upi' | 'card' | 'cod' | ''>('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [shippingData, setShippingData] = useState<ShippingFormData | null>(null);
   const [billingData, setBillingData] = useState<BillingFormData | null>(null);
+  const [selectedAddressId, setSelectedAddressId] = useState<string>('');
 
   const {
     register: registerShipping,
     handleSubmit: handleShippingSubmit,
     formState: { errors: shippingErrors },
+    setValue: setShippingValue,
   } = useForm<ShippingFormData>();
 
   const {
@@ -47,6 +53,33 @@ export const Checkout = () => {
 
   const sameAsShipping = watch('sameAsShipping');
   const total = getTotalPrice();
+
+  useEffect(() => {
+    const defaultAddress = savedAddresses.find((addr) => addr.isDefault);
+    if (defaultAddress) {
+      setSelectedAddressId(defaultAddress.id);
+      fillAddressForm(defaultAddress);
+    }
+  }, []);
+
+  const fillAddressForm = (address: any) => {
+    setShippingValue('fullName', address.fullName);
+    setShippingValue('address', address.address);
+    setShippingValue('city', address.city);
+    setShippingValue('state', address.state);
+    setShippingValue('zipCode', address.zipCode);
+    if (user?.email) {
+      setShippingValue('email', user.email);
+    }
+  };
+
+  const handleAddressSelect = (addressId: string) => {
+    setSelectedAddressId(addressId);
+    const address = savedAddresses.find((addr) => addr.id === addressId);
+    if (address) {
+      fillAddressForm(address);
+    }
+  };
 
   if (items.length === 0) {
     navigate('/cart');
@@ -72,12 +105,40 @@ export const Checkout = () => {
     setIsProcessing(true);
 
     setTimeout(() => {
+      const orderNumber = `NX${Date.now().toString().slice(-8)}`;
+      const orderDate = new Date().toISOString().split('T')[0];
+
+      const shippingAddressStr = shippingData
+        ? `${shippingData.address}, ${shippingData.city}, ${shippingData.state} ${shippingData.zipCode}`
+        : 'Address not provided';
+
+      const newOrder = {
+        id: `order-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        orderNumber,
+        date: orderDate,
+        total: total * 1.18,
+        status: 'Processing' as const,
+        items: items.map((item) => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+        })),
+        shippingAddress: shippingAddressStr,
+        paymentMethod,
+        paymentStatus: paymentMethod === 'cod' ? 'Pending' : 'Paid (Mock)',
+      };
+
+      addOrder(newOrder);
       clearCart();
+
       navigate('/success', {
         state: {
+          orderNumber,
           paymentMethod,
           paymentStatus: paymentMethod === 'cod' ? 'Pending' : 'Paid (Mock)',
-          orderStatus: 'Placed'
+          orderStatus: 'Processing'
         }
       });
     }, 2000);
@@ -151,6 +212,55 @@ export const Checkout = () => {
                       Shipping Information
                     </h2>
                   </div>
+
+                  {savedAddresses.length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                        Saved Addresses
+                      </h3>
+                      <div className="grid grid-cols-1 gap-3 mb-4">
+                        {savedAddresses.map((address) => (
+                          <button
+                            key={address.id}
+                            type="button"
+                            onClick={() => handleAddressSelect(address.id)}
+                            className={`p-4 border-2 rounded-lg text-left transition-all ${
+                              selectedAddressId === address.id
+                                ? 'border-blue-600 bg-blue-50'
+                                : 'border-gray-300 hover:border-blue-400'
+                            }`}
+                          >
+                            <div className="flex items-start justify-between">
+                              <div>
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-semibold text-gray-900">
+                                    {address.label}
+                                  </span>
+                                  {address.isDefault && (
+                                    <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">
+                                      Default
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-gray-700 font-medium">{address.fullName}</p>
+                                <p className="text-sm text-gray-600">
+                                  {address.address}, {address.city}, {address.state} {address.zipCode}
+                                </p>
+                              </div>
+                              {selectedAddressId === address.id && (
+                                <Check className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                      <div className="border-t pt-4">
+                        <p className="text-sm text-gray-600 mb-3">
+                          Or enter a new shipping address:
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <form onSubmit={handleShippingSubmit(onShippingSubmit)} className="space-y-4">
                     <div>
